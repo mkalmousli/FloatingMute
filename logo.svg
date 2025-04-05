@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 64 64" fill="none">
+  <!-- Speaker shape (black) -->
+  <path d="M16 24h8l12-10v36l-12-10h-8V24z" fill="#47464b" stroke="#eee" stroke-width="2" />
+
+  <!-- Mute slash (red) -->
+  <line x1="18" y1="18" x2="46" y2="46" stroke="red" stroke-width="5" stroke-linecap="round"/>
+</svg>

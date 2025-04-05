@@ -6,14 +6,12 @@ import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.PixelFormat
 import android.media.AudioManager
 import android.os.Build
 import android.app.PendingIntent
 import android.view.MotionEvent
-import android.view.OrientationEventListener
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams
 import androidx.core.app.ActivityCompat
@@ -23,26 +21,50 @@ import com.github.mkalmousli.floating_mute.databinding.FloatingViewBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 
 
 class NotificationBroadcastReceiver : BroadcastReceiver() {
+    private val scope = CoroutineScope(Dispatchers.Main)
+
     override fun onReceive(context: Context?, intent: Intent?) {
-        val serviceIntent = Intent(context, FloatingViewService::class.java)
-        context?.stopService(serviceIntent)
+        // Retrieve the extras
+
+        when (modeFlow.value) {
+            Mode.Hidden -> scope.launch {
+                modeFlow.emit(Mode.Enabled)
+            }
+            Mode.Enabled -> scope.launch {
+                modeFlow.emit(Mode.Hidden)
+            }
+
+            else -> {}
+        }
     }
 }
 
-class FloatingViewService : Service(), SharedPreferences.OnSharedPreferenceChangeListener {
+
+
+
+class FloatingViewService : Service() {
     private val windowManager: WindowManager by lazy {
         getSystemService(WINDOW_SERVICE) as WindowManager
     }
 
     private val audioManager: AudioManager by lazy {
         getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    }
+
+    private val scope = CoroutineScope(Dispatchers.Main)
+
+    private val maxVolumeFlow by lazy {
+        audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
     }
 
     private val binds by lazy {
@@ -61,6 +83,22 @@ class FloatingViewService : Service(), SharedPreferences.OnSharedPreferenceChang
             LayoutParams.FLAG_NOT_FOCUSABLE,
             PixelFormat.TRANSLUCENT
         )
+
+
+    private fun convertVolumeToPercentage(volume: Int) =
+        ((volume.toDouble() / maxVolumeFlow) * 100).roundToInt()
+
+    private val volumePercentageFlow by lazy {
+        MutableStateFlow(0).also { flow ->
+            scope.launch {
+                volumeFlow.collectLatest {
+                    flow.emit(convertVolumeToPercentage(it))
+                }
+            }
+        }
+    }
+
+
 
 
     /**
@@ -83,11 +121,10 @@ class FloatingViewService : Service(), SharedPreferences.OnSharedPreferenceChang
     @SuppressLint("ClickableViewAccessibility")
     private fun handleViewMoving() {
         var initialX = prefLastX
-        var initialY = prefLastX
+        var initialY = prefLastY
         var initialTouchX = 0f
         var initialTouchY = 0f
-
-
+        var isDragging = false
 
         binds.root.setOnTouchListener { v, event ->
             val action = event.action
@@ -95,34 +132,38 @@ class FloatingViewService : Service(), SharedPreferences.OnSharedPreferenceChang
             when (action) {
                 MotionEvent.ACTION_DOWN -> {
                     lastDown = System.currentTimeMillis()
+                    isDragging = false
 
                     initialX = params.x
                     initialY = params.y
                     initialTouchX = event.rawX
                     initialTouchY = event.rawY
 
-                    holdJob = CoroutineScope(Dispatchers.Main).launch {
+                    holdJob = scope.launch {
                         delay(600)
-                        lastDown = 0
-                        hide()
+                        if (!isDragging) {
+                            modeFlow.emit(Mode.Hidden)
+                        }
                     }
-
                 }
 
                 MotionEvent.ACTION_MOVE -> {
                     holdJob?.cancel()
+                    isDragging = true
                     val newX = initialX + (event.rawX - initialTouchX).toInt()
                     val newY = initialY + (event.rawY - initialTouchY).toInt()
-                    updateViewPos(params, newX, newY)
+                    scope.launch {
+                        positionFlow.emit(Pair(newX, newY))
+                    }
                 }
 
                 MotionEvent.ACTION_UP -> {
+                    holdJob?.cancel()
                     val currentTime = System.currentTimeMillis()
                     val diff = currentTime - lastDown
 
-                    if (diff <= 100) {
+                    if (!isDragging && diff <= 100) {
                         toggleVolume()
-                        holdJob?.cancel()
                     }
                 }
 
@@ -133,7 +174,6 @@ class FloatingViewService : Service(), SharedPreferences.OnSharedPreferenceChang
             }
             true
         }
-
     }
 
     /**
@@ -148,9 +188,6 @@ class FloatingViewService : Service(), SharedPreferences.OnSharedPreferenceChang
      */
     private val currentVolume get() =
         audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
-
-    private val currentVolumePercentage get() =
-        ((currentVolume.toDouble()  / maxVolume) * 100).roundToInt()
 
 
     /**
@@ -176,8 +213,9 @@ class FloatingViewService : Service(), SharedPreferences.OnSharedPreferenceChang
             AudioManager.FLAG_PLAY_SOUND
         )
 
-        updateIcon()
-        updatePercentage()
+        scope.launch {
+            volumeFlow.emit(0)
+        }
     }
 
     /**
@@ -186,7 +224,7 @@ class FloatingViewService : Service(), SharedPreferences.OnSharedPreferenceChang
      */
     private fun unMute() {
         val volume = if (startVolume <= 0) {
-            maxVolume / 2
+            1
         } else {
             startVolume
         }
@@ -197,78 +235,81 @@ class FloatingViewService : Service(), SharedPreferences.OnSharedPreferenceChang
             AudioManager.FLAG_PLAY_SOUND
         )
 
-        updateIcon()
-        updatePercentage()
+        scope.launch {
+            volumeFlow.emit(volume)
+        }
     }
 
     /**
      * Toggle the volume based. mute <-> un-mute.
      */
-    private fun toggleVolume() {
-        if (isMute()) {
-            unMute()
-        } else {
-            mute()
-        }
-    }
+    private fun toggleVolume() = if (isMute()) unMute() else mute()
 
 
-    /**
-     * Update the icon based on the current volume.
-     */
-    private fun updateIcon() {
 
-        val icon = when (currentVolumePercentage) {
-            0 -> R.drawable.volume_off
-            in 1..25 -> R.drawable.volume_up_25
-            in 26..50 -> R.drawable.volume_up_50
-            in 51..94 -> R.drawable.volume_up_75
-            in 95..100 -> R.drawable.volume_max
-            else -> R.drawable.volume_off
-        }
 
-        binds.icon.setImageResource(icon)
-    }
+    private fun handleModeChange(mode: Mode) {
 
-    @SuppressLint("SetTextI18n")
-    /**
-     * Calculate the volume percentage and show it.
-     */
-    private fun updatePercentage() {
-        binds.percentage.text = "${currentVolumePercentage}%"
-    }
+        when (mode) {
+            Mode.Enabled -> {
+                showNotification(mode)
 
-    private val orientationListener by lazy {
-        var lastOrientation: Orientation? = null
+                windowManager.addView(binds.root, params)
+                handleViewMoving()
+            }
 
-        object : OrientationEventListener(this) {
-            override fun onOrientationChanged(_orientation: Int) {
-                val newOrientation = orientation
 
-                if (newOrientation != lastOrientation) {
-                    lastOrientation = newOrientation
-
-                    updateViewPos(params, prefLastX, prefLastY)
+            Mode.Disabled -> {
+                //TODO: Avoid try-catch
+                try {
+                    windowManager.removeView(binds.root)
+                }catch (ignored: Exception) {
                 }
+                // remove notification
+                val notificationManager = NotificationManagerCompat.from(this)
+                notificationManager.cancel(NOTIFICATION_ID)
+            }
+
+
+            Mode.Hidden -> {
+                showNotification(mode)
+                windowManager.removeView(binds.root)
             }
         }
     }
 
 
-    override fun onCreate() {
-        super.onCreate()
 
+    companion object {
+        const val NOTIFICATION_ID = 1
+    }
+
+    private fun showNotification(mode: Mode) {
         val intent = Intent(this, NotificationBroadcastReceiver::class.java)
-        val pendingIntent: PendingIntent = PendingIntent.getBroadcast(this, 0, intent,
-            PendingIntent.FLAG_IMMUTABLE)
 
-        val notificationBuilder = NotificationCompat.Builder(baseContext, NOTIFICATION_CHANNEL_ID)
-            .setSmallIcon(R.drawable.volume_max)
-            .setContentTitle("My Notification")
-            .setContentText("This is a notification from my app.")
-            .setPriority(NotificationCompat.PRIORITY_MIN)
-            .addAction(R.drawable.volume_max, "H", pendingIntent)
-//            .setContentIntent(pendingIntent)
+        val pendingIntent = PendingIntent.getBroadcast(
+            this,
+            15,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE // Specify it as mutable
+        )
+
+        val notificationBuilder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID).apply {
+            setSmallIcon(R.drawable.logo)
+            setContentTitle("Floating Mute")
+
+            when (mode) {
+                Mode.Enabled -> {
+                    setContentText("Tap to hide.")
+                }
+                else -> {
+                    setContentText("Tap to show.")
+                }
+            }
+            setContentIntent(pendingIntent)
+            setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            setAutoCancel(true)
+        }
 
         val notificationManager = NotificationManagerCompat.from(this)
         if (ActivityCompat.checkSelfPermission(
@@ -285,63 +326,62 @@ class FloatingViewService : Service(), SharedPreferences.OnSharedPreferenceChang
             // for ActivityCompat#requestPermissions for more details.
             return
         }
-        notificationManager.notify(1, notificationBuilder.build())
+        notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
 
-        /// Init
-        updateIcon()
-        updatePercentage()
+    }
 
-        /// Set view listeners
-        handleViewMoving()
 
-//        binds.apply {
-//            root.apply {
-////                icon.setOnClickListener {
-////                    toggleVolume()
-////                }
-////
-////                icon.setOnLongClickListener {
-////                    hideUI()
-////                    true
-////                }
-//            }
-//        }
+    override fun onCreate() {
+        super.onCreate()
 
-        /// Make the view float!
-        windowManager.addView(binds.root, params)
+        scope.apply {
 
-        /// Listen to rotation events.
-        orientationListener.enable()
-
-        /// Listen to when volume changes, and update the floating view.
-        CoroutineScope(Dispatchers.IO).launch {
-            notificationVolumeFlow.collect {
-                launch(Dispatchers.Main) {
-                    updateIcon()
-                    updatePercentage()
+            launch {
+                positionFlow.collectLatest {
+                    try {
+                        updateViewPos(params, it.first, it.second)
+                    }catch (ignored: Exception) {}
                 }
             }
+
+            launch {
+                volumePercentageFlow.collectLatest {
+                    binds.percentage.text = "$it%"
+
+                    val icon = when (it) {
+                        0 -> R.drawable.volume_off
+                        in 1..25 -> R.drawable.volume_up_25
+                        in 26..50 -> R.drawable.volume_up_50
+                        in 51..94 -> R.drawable.volume_up_75
+                        in 95..100 -> R.drawable.volume_max
+                        else -> R.drawable.volume_off
+                    }
+
+                    binds.icon.setImageResource(icon)
+                }
+            }
+
+            launch {
+                modeFlow.collectLatest {
+                    handleModeChange(it)
+                }
+            }
+
+            launch {
+                modeFlow.emit(Mode.Enabled)
+            }
         }
-
-
-        sharedPrefs.registerOnSharedPreferenceChangeListener(this)
     }
-
-
-    private fun hide() {
-        orientationListener.disable()
-        windowManager.removeView(binds.root)
-    }
-
 
     override fun onBind(intent: Intent?) = null
 
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String?) {
-//        println(key)
-    }
-
     override fun onDestroy() {
-        println("Killing the service...")
+        scope.launch {
+            modeFlow.emit(Mode.Disabled)
+            handleModeChange(Mode.Disabled)
+            scope.cancel()
+        }
+
         super.onDestroy()
     }
 

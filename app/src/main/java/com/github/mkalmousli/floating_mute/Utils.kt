@@ -9,8 +9,10 @@ import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.media.AudioManager
+import android.net.Uri
 import android.os.Build
 import android.view.LayoutInflater
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
@@ -20,18 +22,14 @@ val Context.sharedPrefs: SharedPreferences
     getSharedPreferences("Prefs", Context.MODE_PRIVATE)
 
 
-enum class Orientation {
-    LANDSCAPE,
-    PORTRAIT
-}
 
 val Context.orientation: Orientation get() {
     val v = resources.configuration.orientation
 
     return if (v == Configuration.ORIENTATION_LANDSCAPE) {
-        Orientation.LANDSCAPE
+        Orientation.Landscape
     } else {
-        Orientation.PORTRAIT
+        Orientation.Portrait
     }
 }
 
@@ -79,8 +77,6 @@ val Context.notificationVolumeFlow
 
 
 
-public val NOTIFICATION_CHANNEL_ID = "main_channel"
-
 fun Context.createNotificationChannel() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         val name = getString(R.string.channel_name)
@@ -95,3 +91,11 @@ fun Context.createNotificationChannel() {
     }
 }
 
+fun Context.openUrl(url: String) {
+    try {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        startActivity(intent)
+    } catch (ignored: Exception) {
+        Toast.makeText(this, "Failed to open URL: $url", Toast.LENGTH_SHORT).show()
+    }
+}
