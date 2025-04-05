@@ -9,7 +9,7 @@
     </p>
 </center>
 
-## features
+## Features
 - Mute/Unmute your device with a single tap.
 - By unmuting it restores the volume as it was before unmuting.
 - Can be place anywhere on the screen by simply draging it.
@@ -17,6 +17,9 @@
 - It saves the position of the button on the screen seperate for the orientations, portrait and landscape.
 - Automatically adjust as you change the volume.
 - Shows the percentage in beside the floating button.
+
+
+## Screenshots
 
 <table>
     <tr>
