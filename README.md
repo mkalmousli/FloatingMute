@@ -2,7 +2,7 @@
     <img src="logo.svg" width="200px" />
     <h1>Floating Mute</h1>
     <p>
-        An app to allow you mute or unmute the volume of your phone with a single click.
+        Easily switch between mute and unmute with a single tap while watching videos. Perfect for YouTube shorts, Reels, and more.
     </p>
     <p>
         Made for Android.
