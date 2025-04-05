@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   height="24px"
+   viewBox="0 0 24 24"
+   width="24px"
+   fill="#000000"
+   version="1.1"
+   id="svg12112"
+   sodipodi:docname="volume_up_75.svg"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs12116" />
+  <sodipodi:namedview
+     id="namedview12114"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     showgrid="false"
+     inkscape:zoom="21.183741"
+     inkscape:cx="18.764391"
+     inkscape:cy="12.651212"
+     inkscape:window-width="1680"
+     inkscape:window-height="1017"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg12112" />
+  <path
+     d="M0 0h24v24H0z"
+     fill="none"
+     id="path12108" />
+  <path
+     d="m 3,9 v 6 h 4 l 5,5 V 4 L 7,9 Z m 13.5,3 C 16.5,10.23 15.48,8.71 14,7.97 v 8.05 c 1.48,-0.73 2.5,-2.25 2.5,-4.02 z"
+     id="path12110"
+     sodipodi:nodetypes="cccccccsccs" />
+</svg>
