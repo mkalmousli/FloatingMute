@@ -11,11 +11,11 @@
 
 ## Features
 - Mute/Unmute your device with a single tap.
-- By unmuting it restores the volume as it was before unmuting.
-- Can be place anywhere on the screen by simply draging it.
+- When unmuting it restores the volume as it was before unmuting.
+- Can be placed anywhere on the screen by simply dragging it.
 - You can hide it by long pressing it, and tap on the notification to make it appear again.
-- It saves the position of the button on the screen seperate for the orientations, portrait and landscape.
-- Automatically adjust as you change the volume.
+- It saves the position of the button on the screen for each orientations, portrait and landscape.
+- Automatically adjusts itself as you change the volume.
 - Shows the percentage in beside the floating button.
 
 
