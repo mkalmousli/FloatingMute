@@ -1,4 +1,6 @@
-<img src="logo.svg" width="200px" align="center" />
+<p align="center">
+    <img src="logo.svg" width="200px" />
+</p>
 <h1 align="center">Floating Mute</h1>
 <p align="center">
     Easily switch between mute and unmute with a single tap while watching videos. Perfect for YouTube shorts, Reels, and more.
