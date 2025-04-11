@@ -1,13 +1,11 @@
-<center>
-    <img src="logo.svg" width="200px" />
-    <h1>Floating Mute</h1>
-    <p>
-        Easily switch between mute and unmute with a single tap while watching videos. Perfect for YouTube shorts, Reels, and more.
-    </p>
-    <p>
-        Made for Android.
-    </p>
-</center>
+<img src="logo.svg" width="200px" align="center" />
+<h1 align="center">Floating Mute</h1>
+<p align="center">
+    Easily switch between mute and unmute with a single tap while watching videos. Perfect for YouTube shorts, Reels, and more.
+</p>
+<p align="center">
+    Made for Android.
+</p>
 
 ## Features
 - Mute/Unmute your device with a single tap.
