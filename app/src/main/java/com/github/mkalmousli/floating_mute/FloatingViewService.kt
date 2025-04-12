@@ -142,7 +142,7 @@ class FloatingViewService : Service() {
                     holdJob = scope.launch {
                         delay(600)
                         if (!isDragging) {
-                            modeFlow.emit(Mode.Hidden)
+                            modeFlow.emit(Mode.Disabled)
                         }
                     }
                 }
@@ -188,13 +188,6 @@ class FloatingViewService : Service() {
      */
     private val currentVolume get() =
         audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
-
-
-    /**
-     * Get the maximum allowed volume on the device.
-     */
-    private val maxVolume get() =
-        audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
 
     /**
      * Check whether is current volume in the mute state.
@@ -268,6 +261,9 @@ class FloatingViewService : Service() {
                 // remove notification
                 val notificationManager = NotificationManagerCompat.from(this)
                 notificationManager.cancel(NOTIFICATION_ID)
+
+                // kill service
+                stopSelf()
             }
 
 
@@ -342,6 +338,10 @@ class FloatingViewService : Service() {
                         updateViewPos(params, it.first, it.second)
                     }catch (ignored: Exception) {}
                 }
+            }
+
+            launch {
+                volumeFlow.emit(currentVolume)
             }
 
             launch {
