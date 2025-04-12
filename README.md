@@ -25,6 +25,13 @@
 - Shows the percentage in beside the floating button.
 
 
+## Usage
+- Tap to mute/unmute.
+- Long press to disable the it.
+- Drag it to move it.
+- You can hide it by tapping on the notification.
+- To show it again, tap on the notification.
+
 ## Screenshots
 
 <table>
