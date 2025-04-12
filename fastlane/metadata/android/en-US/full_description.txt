@@ -1,5 +1,18 @@
-Floating Mute is a convenient app that lets you quickly mute videos with a single tap. Whether you're watching a YouTube short, a Reel, or any other video, Floating Mute gives you instant control over the audio.
+Floating Mute is a convenient app that lets you quickly mute videos with a single tap. 
+Whether you're watching a YouTube short, a Reel, or any other video, Floating Mute gives you instant control over the audio.
 
-No more fumbling for the volume buttons or navigating through menus - with Floating Mute, you can easily switch between mute and unmute with just one tap, allowing you to focus on the visuals or listen to the audio as needed.
+## Features
+- Mute/Unmute your device with a single tap.
+- When unmuting it restores the volume as it was before unmuting.
+- Can be placed anywhere on the screen by simply dragging it.
+- You can hide it by long pressing it, and tap on the notification to make it appear again.
+- It saves the position of the button on the screen for each orientations, portrait and landscape.
+- Automatically adjusts itself as you change the volume.
+- Shows the percentage in beside the floating button.
 
-Perfect for when you need to watch a video in a quiet space, or when you just want to focus on the visuals, Floating Mute is a simple yet powerful tool that makes video watching easier and more convenient.
+## Usage
+- Tap to mute/unmute.
+- Long press to disable the it.
+- Drag it to move it.
+- You can hide it by tapping on the notification.
+- To show it again, tap on the notification.
