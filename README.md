@@ -9,6 +9,12 @@
     Made for Android.
 </p>
 
+<p align="center" >
+    <a href="https://apt.izzysoft.de/fdroid/index/apk/com.github.mkalmousli.floating_mute">
+        <img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" width="200"/>
+    </a>
+</p>
+
 ## Features
 - Mute/Unmute your device with a single tap.
 - When unmuting it restores the volume as it was before unmuting.
