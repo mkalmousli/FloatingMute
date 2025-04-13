@@ -46,6 +46,16 @@
 </table>
 
 
+## Press
+
+I appreciate the support from the tech community!
+
+- **Floating Mute** was featured on [Computer-WD](https://www.computer-wd.com/2025/04/new-smartphone-apps.html#header-3), one of the top Arabic tech blogs:
+
+    > *"A clever Android tool that makes muting and unmuting videos effortless—especially useful for short-form content like YouTube Shorts and Reels."*  
+    > *(Translated from Arabic)*  
+    > — April 11, 2025
+
 ## License
 [![GNU GPLv3 Image](https://www.gnu.org/graphics/gplv3-127x51.png)](https://www.gnu.org/licenses/gpl-3.0.en.html)  
 
