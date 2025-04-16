@@ -9,11 +9,20 @@
     Made for Android.
 </p>
 
-<p align="center" >
-    <a href="https://apt.izzysoft.de/fdroid/index/apk/com.github.mkalmousli.floating_mute">
-        <img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" width="200"/>
-    </a>
-</p>
+<table align="center" style="">
+    <tr>
+        <td>
+            <a href='https://floating-mute.en.uptodown.com/android' title='Download Floating Mute'>
+                <img src='https://stc.utdstc.com/img/mediakit/download-gio-big-b.png' alt='Download Floating Mute' width="150">
+            </a>
+        </td>
+        <td>
+            <a href="https://apt.izzysoft.de/fdroid/index/apk/com.github.mkalmousli.floating_mute">
+                <img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" width="200"/>
+            </a>
+        </td>
+    </tr>
+</table>
 
 ## Features
 - Mute/Unmute your device with a single tap.
