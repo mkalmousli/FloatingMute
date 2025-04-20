@@ -11,6 +11,15 @@
 
 <table align="center" style="">
     <tr>
+        <td colspan="2">
+            <p align="center">
+                <a href="https://f-droid.org/en/packages/com.github.mkalmousli.floating_mute">
+                    <img src="https://f-droid.org/badge/get-it-on.svg" height="90" />
+                </a>
+            </p>
+        </td>
+    </tr>
+    <tr>
         <td>
             <a href='https://floating-mute.en.uptodown.com/android' title='Download Floating Mute'>
                 <img src='https://stc.utdstc.com/img/mediakit/download-gio-big-b.png' alt='Download Floating Mute' width="150">
