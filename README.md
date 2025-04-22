@@ -11,7 +11,7 @@
 
 <table align="center" style="">
     <tr>
-        <td colspan="2">
+        <td colspan="3">
             <p align="center">
                 <a href="https://f-droid.org/en/packages/com.github.mkalmousli.floating_mute">
                     <img src="https://f-droid.org/badge/get-it-on.svg" height="90" />
@@ -28,6 +28,11 @@
         <td>
             <a href="https://apt.izzysoft.de/fdroid/index/apk/com.github.mkalmousli.floating_mute">
                 <img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" width="200"/>
+            </a>
+        </td>
+        <td>
+            <a href="https://www.openapk.net/floating-mute/com.github.mkalmousli.floating_mute/">
+                <img src="https://www.openapk.net/images/openapk-badge.png" width="200"/>
             </a>
         </td>
     </tr>
