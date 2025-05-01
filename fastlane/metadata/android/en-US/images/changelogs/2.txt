@@ -1,0 +1,5 @@
+What's new:
+- Now you can hide the volume percentage if you don't want it!
+- You can hide, show and even stop the app all from the notification!
+- Added "How To Use?" page so you know how to use it.
+- Other small UI improvements.
