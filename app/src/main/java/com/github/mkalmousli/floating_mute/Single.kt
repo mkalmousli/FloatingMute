@@ -12,6 +12,7 @@ enum class Mode {
 }
 val modeFlow = MutableStateFlow(Mode.Disabled)
 
+val showPercentageFlow = MutableStateFlow(false)
 
 enum class Orientation {
     Portrait,

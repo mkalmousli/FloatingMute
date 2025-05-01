@@ -49,11 +49,12 @@
 
 
 ## Usage
-- Tap to mute/unmute.
-- Long press to disable the it.
+- Tap the floating button to mute or unmute.
 - Drag it to move it.
-- You can hide it by tapping on the notification.
-- To show it again, tap on the notification.
+- Long press to disable the it.
+- The notification allows you to hide and show it at any time.
+- You can also quit the app by tapping on 'exit' in the notification.
+- Tap on the notification to open the app so you can change the settings.
 
 ## Screenshots
 

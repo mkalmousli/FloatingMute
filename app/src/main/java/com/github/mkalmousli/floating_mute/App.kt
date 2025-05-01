@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.media.AudioManager
 import android.view.OrientationEventListener
+import android.widget.Toast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
@@ -42,6 +43,11 @@ class App : Application() {
 
 
         scope.apply {
+
+            launch {
+                showPercentageFlow.emit(prefShowPercentage)
+            }
+
             launch {
                 orientationFlow.collectLatest {
                     positionFlow.emit(Pair(prefLastX, prefLastY))
@@ -62,6 +68,14 @@ class App : Application() {
             }
         }
 
+
+        scope.launch {
+            modeFlow.collectLatest {
+                if (it == Mode.Hidden) {
+                    Toast.makeText(this@App, "Floating view is hidden", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
 
 
 

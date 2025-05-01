@@ -12,6 +12,8 @@ import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
 import android.view.LayoutInflater
+import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.channels.awaitClose
@@ -36,11 +38,14 @@ val Context.orientation: Orientation get() {
 fun SharedPreferences.setInt(name: String, value: Int) =
     edit().putInt(name, value).apply()
 
+fun SharedPreferences.setBoolean(name: String, value: Boolean) =
+    edit().putBoolean(name, value).apply()
 
-val Context.prefLastXName get() =
+
+private val Context.prefLastXName get() =
     "lastX_" + orientation.name
 
-val Context.prefLastYName get() =
+private val Context.prefLastYName get() =
     "lastY_" + orientation.name
 
 var Context.prefLastX
@@ -50,6 +55,17 @@ var Context.prefLastX
 var Context.prefLastY
     get() = sharedPrefs.getInt(prefLastYName, 0)
     set(v) = sharedPrefs.setInt(prefLastYName, v)
+
+
+
+
+private val prefShowPercentageName get() =
+    "show_percentage"
+
+var Context.prefShowPercentage
+    get() = sharedPrefs.getBoolean(prefShowPercentageName, true)
+    set(v) = sharedPrefs.setBoolean(prefShowPercentageName, v)
+
 
 
 val Context.layoutInflater
@@ -98,4 +114,15 @@ fun Context.openUrl(url: String) {
     } catch (ignored: Exception) {
         Toast.makeText(this, "Failed to open URL: $url", Toast.LENGTH_SHORT).show()
     }
+}
+
+
+fun Context.createGap(
+    width: Int = ViewGroup.LayoutParams.MATCH_PARENT,
+    height: Int = 10
+) = LinearLayout(this).apply {
+    layoutParams = ViewGroup.LayoutParams(
+        width,
+        height
+    )
 }

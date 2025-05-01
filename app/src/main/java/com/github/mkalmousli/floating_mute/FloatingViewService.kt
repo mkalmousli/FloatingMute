@@ -12,6 +12,7 @@ import android.media.AudioManager
 import android.os.Build
 import android.app.PendingIntent
 import android.view.MotionEvent
+import android.view.View
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams
 import androidx.core.app.ActivityCompat
@@ -36,16 +37,35 @@ class NotificationBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         // Retrieve the extras
 
-        when (modeFlow.value) {
-            Mode.Hidden -> scope.launch {
-                modeFlow.emit(Mode.Enabled)
-            }
-            Mode.Enabled -> scope.launch {
-                modeFlow.emit(Mode.Hidden)
-            }
+        val action = intent?.getIntExtra("action", 0) ?: 0
 
-            else -> {}
+        if (action == 2) {
+            // launch the the mainactivity if not already running
+            val intent = Intent(context, MainActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context?.startActivity(intent)
+            return
         }
+
+        if (action == 1) {
+            scope.launch {
+                modeFlow.emit(Mode.Disabled)
+            }
+            return
+        }
+
+        scope.launch {
+            when (modeFlow.value) {
+                Mode.Hidden -> scope.launch {
+                    modeFlow.emit(Mode.Enabled)
+                }
+                Mode.Enabled -> scope.launch {
+                    modeFlow.emit(Mode.Hidden)
+                }
+                else -> {}
+            }
+        }
+
     }
 }
 
@@ -281,14 +301,9 @@ class FloatingViewService : Service() {
     }
 
     private fun showNotification(mode: Mode) {
-        val intent = Intent(this, NotificationBroadcastReceiver::class.java)
-
-        val pendingIntent = PendingIntent.getBroadcast(
-            this,
-            15,
-            intent,
-            PendingIntent.FLAG_IMMUTABLE // Specify it as mutable
-        )
+        if (mode == Mode.Disabled) {
+            return
+        }
 
         val notificationBuilder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID).apply {
             setSmallIcon(R.drawable.logo)
@@ -296,16 +311,41 @@ class FloatingViewService : Service() {
 
             when (mode) {
                 Mode.Enabled -> {
-                    setContentText("Tap to hide.")
+                    setContentText("Enabled. Tap to open the app.")
                 }
                 else -> {
-                    setContentText("Tap to show.")
+                    setContentText("Disabled, tap to show.")
                 }
             }
-            setContentIntent(pendingIntent)
+
+            fun createPendingIntent(action: Int): PendingIntent {
+                val intent = Intent(this@FloatingViewService, NotificationBroadcastReceiver::class.java)
+                intent.putExtra("action", action)
+                return PendingIntent.getBroadcast(
+                    this@FloatingViewService,
+                    action,
+                    intent,
+                    PendingIntent.FLAG_IMMUTABLE // Specify it as mutable
+                )
+            }
             setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            setAutoCancel(true)
+            setAutoCancel(false)
+
+            when (mode) {
+                Mode.Enabled -> {
+                    addAction(R.drawable.logo, "Hide", createPendingIntent(0))
+                }
+                Mode.Hidden -> {
+                    addAction(R.drawable.logo, "Show", createPendingIntent(0))
+                }
+                else -> Unit
+            }
+            addAction(R.drawable.logo, "Stop", createPendingIntent(1))
+
+            setContentIntent(createPendingIntent(2))
         }
+
+
 
         val notificationManager = NotificationManagerCompat.from(this)
         if (ActivityCompat.checkSelfPermission(
@@ -327,10 +367,17 @@ class FloatingViewService : Service() {
     }
 
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate() {
         super.onCreate()
 
         scope.apply {
+
+            launch {
+                showPercentageFlow.collectLatest {
+                    binds.percentage.visibility = if (it) View.VISIBLE else View.GONE
+                }
+            }
 
             launch {
                 positionFlow.collectLatest {

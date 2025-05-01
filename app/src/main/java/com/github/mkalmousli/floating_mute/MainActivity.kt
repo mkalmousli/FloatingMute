@@ -14,6 +14,7 @@ import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import com.github.mkalmousli.floating_mute.fragments.HomeFragment
 
 class MainActivity : AppCompatActivity() {
 
