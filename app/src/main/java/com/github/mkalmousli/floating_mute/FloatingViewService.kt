@@ -162,7 +162,7 @@ class FloatingViewService : Service() {
                     holdJob = scope.launch {
                         delay(600)
                         if (!isDragging) {
-                            modeFlow.emit(Mode.Disabled)
+                            modeFlow.emit(Mode.Hidden)
                         }
                     }
                 }
@@ -311,10 +311,10 @@ class FloatingViewService : Service() {
 
             when (mode) {
                 Mode.Enabled -> {
-                    setContentText("Enabled. Tap to open the app.")
+                    setContentText("Enabled. Hide or tap here to open the app.")
                 }
                 else -> {
-                    setContentText("Disabled, tap to show.")
+                    setContentText("Currently hidden. Show, or tap here to open the app.")
                 }
             }
 

@@ -48,7 +48,7 @@ class HowToUseFragment : Fragment() {
             val instructions = arrayListOf(
                 "Tap the floating button to mute or unmute.",
                 "Drag it to move it.",
-                "Long press to disable the it.",
+                "Long press to hide the it.",
                 "The notification allows you to hide and show it at any time.",
                 "You can also quit the app by tapping on 'exit' in the notification.",
                 "Tap on the notification to open the app so you can change the settings."
