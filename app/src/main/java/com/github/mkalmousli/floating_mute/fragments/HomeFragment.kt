@@ -64,7 +64,7 @@ class HomeFragment : Fragment() {
 
 
                 TextView(c).apply {
-                    text = "2025.05.01"
+                    text = "Released on 2025.05.01"
                     textSize = 10f
                     alpha = 0.5f
                     versionView.addView(this)
@@ -124,7 +124,7 @@ class HomeFragment : Fragment() {
 
             // create a switch to toggle the floating view
             Switch(c).apply {
-                text = "Enable Floating View"
+                text = "Enable Floating Mute"
                 textSize = 25f
                 isChecked = false
                 updatePadding(top=120)
