@@ -1,0 +1,2 @@
+fixed: Taps not registered some devices (e.g. Samsung) #1
+added basic translations to german, turkish and arabic.
