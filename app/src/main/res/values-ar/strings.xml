@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="volume_description">انقر لتبديل مستوى الصوت.</string>
+
+    <string name="go_back">العودة للصفحة الرئيسية</string>
+    <string name="how_to_use">كيفية الاستخدام؟</string>
+    <string name="app_desc">يتيح لك هذا التطبيق كتم أو إلغاء كتم صوت الهاتف بنقرة واحدة.</string>
+    <string name="about">حول</string>
+    <string name="status">الحالة</string>
+    <string name="enabled">مفعل</string>
+    <string name="disabled">معطل</string>
+    <string name="hidden">مخفي</string>
+    <string name="show_volume_percentage">إظهار نسبة مستوى الصوت</string>
+    <string name="enable_floating_mute">تفعيل الكتم العائم</string>
+    <string name="released_on">تم الإصدار في </string>
+    <string name="this_app_was_created_by_mkalmousli">تم إنشاء هذا التطبيق بواسطة @mkalmousli</string>
+    <string name="report_an_issue">الإبلاغ عن مشكلة</string>
+    <string name="view_source_code_on_github">عرض الكود المصدري على GitHub</string>
+    <string name="built_on">تم الإنشاء في</string>
+    <string name="hide">إخفاء</string>
+    <string name="show">إظهار</string>
+    <string name="stop">إيقاف</string>
+    <string name="enabled_notification">مفعل. اضغط للإخفاء أو لفتح الإعدادات.</string>
+    <string name="disabled_notification">مخفي حالياً. اضغط للإظهار أو لفتح الإعدادات.</string>
+    <string name="battery_optimizations">يرجى منح إذن تحسين البطارية!</string>
+    <string name="notification_permission">يرجى منح إذن الإشعارات!</string>
+    <string name="overlay_permission">يرجى منح إذن التراكب!</string>
+    <string name="failed_to_open_url">فشل في فتح الرابط</string>
+    <string name="instructions">اضغط على الزر العائم لكتم أو إلغاء كتم الصوت.\nاسحب لتحريكه.\nاضغط مطولاً لإخفائه.\nيسمح لك الإشعار بإخفائه أو إظهاره في أي وقت.\nيمكنك أيضاً إنهاء التطبيق بالنقر على "خروج" في الإشعار.\nاضغط على الإشعار لفتح التطبيق وتغيير الإعدادات.</string>
+</resources>
