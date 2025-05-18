@@ -1,3 +1,7 @@
+<img src="https://img.shields.io/f-droid/v/com.github.mkalmousli.floating_mute?label=F-Droid" alt="Current F-Droid version"/>
+<img src="https://img.shields.io/github/v/tag/mkalmousli/FloatingMute?label=GitHub Release" alt="Current GitHub version">
+
+
 <p align="center">
     <img src="logo.svg" width="200px" />
 </p>
@@ -5,38 +9,35 @@
 <p align="center">
     Easily switch between mute and unmute with a single tap while watching videos. Perfect for YouTube shorts, Reels, and more.
 </p>
-<p align="center">
-    Made for Android.
-</p>
 
-<table align="center" style="">
-    <tr>
-        <td colspan="3">
-            <p align="center">
-                <a href="https://f-droid.org/en/packages/com.github.mkalmousli.floating_mute">
-                    <img src="https://f-droid.org/badge/get-it-on.svg" height="90" />
-                </a>
-            </p>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <a href='https://floating-mute.en.uptodown.com/android' title='Download Floating Mute'>
-                <img src='https://stc.utdstc.com/img/mediakit/download-gio-big-b.png' alt='Download Floating Mute' width="150">
-            </a>
-        </td>
-        <td>
-            <a href="https://apt.izzysoft.de/fdroid/index/apk/com.github.mkalmousli.floating_mute">
-                <img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" width="200"/>
-            </a>
-        </td>
-        <td>
-            <a href="https://www.openapk.net/floating-mute/com.github.mkalmousli.floating_mute/">
-                <img src="https://www.openapk.net/images/openapk-badge.png" width="200"/>
-            </a>
-        </td>
-    </tr>
-</table>
+## Get it
+
+[F-Droid](https://f-droid.org/) is the official and recommend way to get Floating Mute:
+
+
+
+<a href="https://f-droid.org/en/packages/com.github.mkalmousli.floating_mute">
+    <img src="https://f-droid.org/badge/get-it-on.svg" height="90" />
+</a>
+
+
+F-Droid takes a while to publish new versions, if you want to get latest version, you can get it from GitHub releases:
+
+<a href="https://github.com/mkalmousli/FloatingMute/releases/latest">
+    <img src="get_it_on_github.png" width="200"/>
+</a>
+
+The app is published on these platforms, yet it might not be always up to date:
+- [Uptodown](https://floating-mute.en.uptodown.com/android) (Currently v1.0.0)
+
+- [OpenAPK](https://www.openapk.net/floating-mute/com.github.mkalmousli.floating_mute/)
+
+
+- [IzzyOnDroid](https://apt.izzysoft.de/fdroid/index/apk/com.github.mkalmousli.floating_mute)
+
+
+Please don't try to install it from other sources, as they might have changed the code.
+
 
 ## Features
 - Mute/Unmute your device with a single tap.
