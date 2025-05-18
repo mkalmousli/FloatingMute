@@ -1,6 +1,7 @@
 package com.github.mkalmousli.floating_mute.fragments
 
 import android.content.Intent
+import android.icu.text.DateFormat
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -24,7 +25,8 @@ import com.github.mkalmousli.floating_mute.modeFlow
 import com.github.mkalmousli.floating_mute.showPercentageFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-
+import android.os.Build;
+import com.github.mkalmousli.floating_mute.BuildConfig
 
 
 class HomeFragment : Fragment() {
@@ -46,7 +48,7 @@ class HomeFragment : Fragment() {
             }
 
             TextView(c).apply {
-                text = "Floating Mute"
+                text = getString(R.string.app_name)
                 textSize = 30f
                 contentView.addView(this)
             }
@@ -56,7 +58,10 @@ class HomeFragment : Fragment() {
                 versionView.orientation = LinearLayout.HORIZONTAL
 
                 TextView(c).apply {
-                    text = "v2.0.0"
+                    text = buildString {
+                        append("v")
+                        append(BuildConfig.VERSION_NAME)
+                    }
                     textSize = 20f
                     updatePadding(right=20)
                     versionView.addView(this)
@@ -64,7 +69,11 @@ class HomeFragment : Fragment() {
 
 
                 TextView(c).apply {
-                    text = "Released on 2025.05.01"
+                    text = buildString {
+                        append(getString(R.string.released_on))
+                        append(" ")
+                        append(BuildConfig.RELEASE_DAY)
+                    }
                     textSize = 10f
                     alpha = 0.5f
                     versionView.addView(this)
@@ -75,10 +84,35 @@ class HomeFragment : Fragment() {
 
 
 
+            LinearLayout(c).also { builtOnView ->
+                builtOnView.orientation = LinearLayout.VERTICAL
+                builtOnView.updatePadding(top = 10)
+
+                TextView(c).apply {
+                    text = getString(R.string.built_on)
+                    textSize = 14f
+                    updatePadding(right=20)
+
+                    builtOnView.addView(this)
+                }
+
+
+                TextView(c).apply {
+                    text = BuildConfig.BUILD_TIME
+                    textSize = 8f
+                    alpha = 0.5f
+                    builtOnView.addView(this)
+                }
+
+                contentView.addView(builtOnView)
+            }
+
+
+
 
 
             TextView(c).apply {
-                text = "This app allows you to mute or unmute the volume of your phone with a single click."
+                text = getString(R.string.app_desc)
                 textSize = 15f
                 updatePadding(top=40)
                 contentView.addView(this)
@@ -89,7 +123,7 @@ class HomeFragment : Fragment() {
             )
 
             Button(c).apply {
-                text = "How To Use?"
+                text = getString(R.string.how_to_use)
                 textSize = 20f
                 layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                 updatePaddingRelative(start = 50, end = 50)
@@ -105,7 +139,7 @@ class HomeFragment : Fragment() {
             }
 
             Button(c).apply {
-                text = "About"
+                text = getString(R.string.about)
                 textSize = 20f
                 layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                 updatePaddingRelative(start = 50, end = 50)
@@ -124,7 +158,7 @@ class HomeFragment : Fragment() {
 
             // create a switch to toggle the floating view
             Switch(c).apply {
-                text = "Enable Floating Mute"
+                text = getString(R.string.enable_floating_mute)
                 textSize = 25f
                 isChecked = false
                 updatePadding(top=120)
@@ -150,7 +184,6 @@ class HomeFragment : Fragment() {
             }
 
             TextView(c).apply {
-                text = "Status: Disabled"
                 textSize = 15f
                 updatePadding(top=30)
                 contentView.addView(this)
@@ -158,7 +191,15 @@ class HomeFragment : Fragment() {
 
                 lifecycleScope.launch {
                     modeFlow.collect {
-                        text = "Status: ${it.name}"
+                        text = buildString {
+                            append(getString(R.string.status))
+                            append(": ")
+                            append(when (it) {
+                                Mode.Enabled -> getString(R.string.enabled)
+                                Mode.Disabled -> getString(R.string.disabled)
+                                Mode.Hidden -> getString(R.string.hidden)
+                            })
+                        }
                     }
                 }
             }
@@ -167,11 +208,14 @@ class HomeFragment : Fragment() {
 
 
 
+            contentView.addView(
+                c.createGap(height = 100)
+            )
+
             Switch(c).apply {
-                text = "Show Volume Percentage"
+                text = getString(R.string.show_volume_percentage)
                 textSize = 25f
                 isChecked = false
-                updatePadding(top=120)
 
                 contentView.addView(this)
 
@@ -188,17 +232,12 @@ class HomeFragment : Fragment() {
                 }
             }
 
-            LinearLayout(c).apply {
-                orientation = LinearLayout.HORIZONTAL
-                updatePadding(top=100)
-                contentView.addView(this)
-            }
-
-
-
-
-
         }
+
+
+        contentView.addView(
+            c.createGap(height = 100)
+        )
 
         ScrollView(c).apply {
             addView(contentView)

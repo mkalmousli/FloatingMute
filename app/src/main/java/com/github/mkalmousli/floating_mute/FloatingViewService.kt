@@ -70,7 +70,7 @@ class NotificationBroadcastReceiver : BroadcastReceiver() {
 }
 
 
-
+private const val s = "Hide"
 
 class FloatingViewService : Service() {
     private val windowManager: WindowManager by lazy {
@@ -321,14 +321,14 @@ class FloatingViewService : Service() {
 
         val notificationBuilder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID).apply {
             setSmallIcon(R.drawable.logo)
-            setContentTitle("Floating Mute")
+            setContentTitle(getString(R.string.app_name))
 
             when (mode) {
                 Mode.Enabled -> {
-                    setContentText("Enabled. Hide or tap here to open the app.")
+                    setContentText(getString(R.string.enabled_notification))
                 }
                 else -> {
-                    setContentText("Currently hidden. Show, or tap here to open the app.")
+                    setContentText(getString(R.string.disabled_notification))
                 }
             }
 
@@ -347,14 +347,14 @@ class FloatingViewService : Service() {
 
             when (mode) {
                 Mode.Enabled -> {
-                    addAction(R.drawable.logo, "Hide", createPendingIntent(0))
+                    addAction(R.drawable.transparent, getString(R.string.hide), createPendingIntent(0))
                 }
                 Mode.Hidden -> {
-                    addAction(R.drawable.logo, "Show", createPendingIntent(0))
+                    addAction(R.drawable.transparent, getString(R.string.show), createPendingIntent(0))
                 }
                 else -> Unit
             }
-            addAction(R.drawable.logo, "Stop", createPendingIntent(1))
+            addAction(R.drawable.transparent, getString(R.string.stop), createPendingIntent(1))
 
             setContentIntent(createPendingIntent(2))
         }

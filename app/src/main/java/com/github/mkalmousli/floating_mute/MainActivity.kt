@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
             val isIgnoringBatteryOptimizations = pm.isIgnoringBatteryOptimizations(packageName)
 
             if (!isIgnoringBatteryOptimizations) {
-                Toast.makeText(context, "Please grant the battery optimization permission!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.battery_optimizations), Toast.LENGTH_SHORT).show()
 
                 val intent = Intent()
                 intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
@@ -54,7 +54,11 @@ class MainActivity : AppCompatActivity() {
                     1
                 )
             } else {
-                Toast.makeText(this, "Please grant the notification permission!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this,
+                    getString(R.string.notification_permission),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -76,7 +80,7 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
             if (!Settings.canDrawOverlays(this)) {
-                Toast.makeText(this, "Please grant the overlay permission!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.overlay_permission), Toast.LENGTH_SHORT).show()
 
                 // If not, request the permission
                 val intent = Intent(

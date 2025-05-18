@@ -18,6 +18,10 @@ import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 val Context.sharedPrefs: SharedPreferences
     get() =
@@ -112,7 +116,10 @@ fun Context.openUrl(url: String) {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
         startActivity(intent)
     } catch (ignored: Exception) {
-        Toast.makeText(this, "Failed to open URL: $url", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, buildString {
+            append(getString(R.string.failed_to_open_url))
+            append(": $url")
+        }, Toast.LENGTH_SHORT).show()
     }
 }
 
@@ -126,3 +133,4 @@ fun Context.createGap(
         height
     )
 }
+

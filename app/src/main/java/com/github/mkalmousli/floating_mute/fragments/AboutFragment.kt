@@ -12,6 +12,7 @@ import android.widget.TextView
 import androidx.core.view.updatePadding
 import androidx.core.widget.ImageViewCompat
 import androidx.fragment.app.Fragment
+import com.github.mkalmousli.floating_mute.BuildConfig
 import com.github.mkalmousli.floating_mute.R
 import com.github.mkalmousli.floating_mute.createGap
 import com.github.mkalmousli.floating_mute.openUrl
@@ -27,7 +28,7 @@ class AboutFragment : Fragment() {
 
 
             Button(c).apply {
-                text = "Go Back"
+                text = context.getString(R.string.go_back)
                 textSize = 20f
                 layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                 setOnClickListener {
@@ -41,7 +42,7 @@ class AboutFragment : Fragment() {
             )
 
             TextView(c).apply {
-                text = "About"
+                text = getString(R.string.about)
                 textSize = 30f
                 contentView.addView(this)
             }
@@ -51,23 +52,66 @@ class AboutFragment : Fragment() {
                 c.createGap(height = 70)
             )
 
-            TextView(c).apply {
-                text = "v2.0.0"
-                textSize = 20f
-                contentView.addView(this)
+            LinearLayout(c).also { versionView ->
+                versionView.orientation = LinearLayout.HORIZONTAL
+
+                TextView(c).apply {
+                    text = buildString {
+                        append("v")
+                        append(BuildConfig.VERSION_NAME)
+                    }
+                    textSize = 20f
+                    updatePadding(right=20)
+                    versionView.addView(this)
+                }
+
+
+                TextView(c).apply {
+                    text = buildString {
+                        append(getString(R.string.released_on))
+                        append(" ")
+                        append(BuildConfig.RELEASE_DAY)
+                    }
+                    textSize = 10f
+                    alpha = 0.5f
+                    versionView.addView(this)
+                }
+
+                contentView.addView(versionView)
             }
-            TextView(c).apply {
-                text = "Released on 2025.05.01"
-                textSize = 15f
-                contentView.addView(this)
+
+
+
+            LinearLayout(c).also { builtOnView ->
+                builtOnView.orientation = LinearLayout.VERTICAL
+                builtOnView.updatePadding(top = 10)
+
+                TextView(c).apply {
+                    text = getString(R.string.built_on)
+                    textSize = 14f
+                    updatePadding(right=20)
+
+                    builtOnView.addView(this)
+                }
+
+
+                TextView(c).apply {
+                    text = BuildConfig.BUILD_TIME
+                    textSize = 8f
+                    alpha = 0.5f
+                    builtOnView.addView(this)
+                }
+
+                contentView.addView(builtOnView)
             }
+
 
             contentView.addView(
                 c.createGap(height = 70)
             )
 
             TextView(c).apply {
-                text = "This app was created by @mkalmousli"
+                text = getString(R.string.this_app_was_created_by_mkalmousli)
                 textSize = 20f
                 updatePadding(top = 50)
                 contentView.addView(this)
@@ -117,7 +161,7 @@ class AboutFragment : Fragment() {
 
 
             Button(c).apply {
-                text = "Report an issue"
+                text = getString(R.string.report_an_issue)
                 textSize = 20f
                 layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -129,7 +173,7 @@ class AboutFragment : Fragment() {
                 contentView.addView(this)
             }
             Button(c).apply {
-                text = "View source code on GitHub"
+                text = getString(R.string.view_source_code_on_github)
                 textSize = 20f
                 layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
