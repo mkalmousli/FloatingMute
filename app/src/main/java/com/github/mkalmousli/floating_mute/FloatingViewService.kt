@@ -132,8 +132,12 @@ class FloatingViewService : Service() {
         prefLastY = y
     }
 
+
+
+
     private var holdJob: Job? = null
     private var lastDown: Long = 0L
+    private var isDragging = false
 
     /**
      * Move the view when the user drag it.
@@ -144,7 +148,6 @@ class FloatingViewService : Service() {
         var initialY = prefLastY
         var initialTouchX = 0f
         var initialTouchY = 0f
-        var isDragging = false
 
         binds.root.setOnTouchListener { v, event ->
             val action = event.action
@@ -168,12 +171,21 @@ class FloatingViewService : Service() {
                 }
 
                 MotionEvent.ACTION_MOVE -> {
+                    val dx = event.rawX - initialTouchX
+                    val dy = event.rawY - initialTouchY
+
+                    if (!isDragging && (dx * dx + dy * dy) > 16) { // Small threshold to detect real movement
+                        isDragging = true
+                    }
+
                     holdJob?.cancel()
-                    isDragging = true
-                    val newX = initialX + (event.rawX - initialTouchX).toInt()
-                    val newY = initialY + (event.rawY - initialTouchY).toInt()
-                    scope.launch {
-                        positionFlow.emit(Pair(newX, newY))
+
+                    if (isDragging) {
+                        val newX = initialX + dx.toInt()
+                        val newY = initialY + dy.toInt()
+                        scope.launch {
+                            positionFlow.emit(Pair(newX, newY))
+                        }
                     }
                 }
 
@@ -182,14 +194,16 @@ class FloatingViewService : Service() {
                     val currentTime = System.currentTimeMillis()
                     val diff = currentTime - lastDown
 
-                    if (!isDragging && diff <= 100) {
+                    if (!isDragging && diff <= 200) { // Increased to 200ms for better user experience
                         toggleVolume()
                     }
+                    isDragging = false
                 }
 
                 MotionEvent.ACTION_CANCEL -> {
                     holdJob?.cancel()
                     lastDown = 0L
+                    isDragging = false
                 }
             }
             true
