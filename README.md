@@ -11,7 +11,7 @@
 
 ## Get it
 
-[F-Droid](https://f-droid.org/) is the official and recommend way to get Floating Mute:
+F-Droid is the official and recommend way to get Floating Mute:
 
 
 
