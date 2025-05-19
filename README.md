@@ -1,4 +1,4 @@
-<img src="https://img.shields.io/f-droid/v/com.github.mkalmousli.floating_mute?label=F-Droid" alt="Current F-Droid version"/> <img src="https://img.shields.io/github/v/tag/mkalmousli/FloatingMute?label=GitHub" alt="Current GitHub version"/>
+<a href="https://f-droid.org/en/packages/com.github.mkalmousli.floating_mute"><img src="https://img.shields.io/f-droid/v/com.github.mkalmousli.floating_mute?label=F-Droid" alt="Current F-Droid version"/></a> <a href="https://github.com/mkalmousli/FloatingMute/releases/latest"><img src="https://img.shields.io/github/v/tag/mkalmousli/FloatingMute?label=GitHub" alt="Current GitHub version"/></a>
 
 
 <p align="center">
