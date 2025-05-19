@@ -10,7 +10,7 @@
     <string name="hidden">Ausgeblendet</string>
     <string name="show_volume_percentage">Lautstärke in Prozent anzeigen</string>
     <string name="enable_floating_mute">Schwebendes Stummschalten aktivieren</string>
-    <string name="released_on">"Veröffentlicht am "</string>
+    <string name="released_on">Veröffentlicht am </string>
     <string name="this_app_was_created_by_mkalmousli">Diese App wurde von @mkalmousli erstellt</string>
     <string name="report_an_issue">Ein Problem melden</string>
     <string name="view_source_code_on_github">Quellcode auf GitHub ansehen</string>

@@ -10,7 +10,7 @@
     <string name="hidden">Gizli</string>
     <string name="show_volume_percentage">Ses Yüzdesini Göster</string>
     <string name="enable_floating_mute">Yüzen Sessize Almayı Etkinleştir</string>
-    <string name="released_on">"Yayın tarihi: "</string>
+    <string name="released_on">Yayın tarihi: </string>
     <string name="this_app_was_created_by_mkalmousli">Bu uygulama @mkalmousli tarafından oluşturulmuştur</string>
     <string name="report_an_issue">Bir sorunu bildir</string>
     <string name="view_source_code_on_github">Kaynak kodunu GitHub\'da görüntüle</string>
