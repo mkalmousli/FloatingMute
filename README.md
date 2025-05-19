@@ -1,5 +1,4 @@
-<img src="https://img.shields.io/f-droid/v/com.github.mkalmousli.floating_mute?label=F-Droid" alt="Current F-Droid version"/>
-<img src="https://img.shields.io/github/v/tag/mkalmousli/FloatingMute?label=GitHub" alt="Current GitHub version">
+<img src="https://img.shields.io/f-droid/v/com.github.mkalmousli.floating_mute?label=F-Droid" alt="Current F-Droid version"/> <img src="https://img.shields.io/github/v/tag/mkalmousli/FloatingMute?label=GitHub" alt="Current GitHub version"/>
 
 
 <p align="center">
