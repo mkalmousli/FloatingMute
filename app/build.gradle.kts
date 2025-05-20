@@ -20,7 +20,9 @@ android {
         versionName = "3.0.0"
 
         defaultConfig {
-            buildConfigField( "String", "BUILD_TIME", "\"${Date()}\"")
+            // BUILD_TIME is not constant, so here we type it fixed:
+            // Next version will remove this info for the F-Droid.
+            buildConfigField( "String", "BUILD_TIME", "\"Mon May 19 18:43:35 UTC 2025\"")
             buildConfigField( "String", "RELEASE_DAY", "\"2025/05/18\"")
         }
     }
