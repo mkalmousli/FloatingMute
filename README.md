@@ -27,7 +27,7 @@ F-Droid takes a while to publish new versions, if you want to get latest version
 </a>
 
 The app is published on these platforms, yet it might not be always up to date:
-- [Uptodown](https://floating-mute.en.uptodown.com/android) (Currently v1.0.0)
+- [Uptodown](https://floating-mute.en.uptodown.com/android)
 
 - [OpenAPK](https://www.openapk.net/floating-mute/com.github.mkalmousli.floating_mute/)
 
