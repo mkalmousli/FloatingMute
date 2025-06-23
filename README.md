@@ -26,7 +26,8 @@ F-Droid takes a while to publish new versions, if you want to get latest version
     <img src="get_it_on_github.png" width="200"/>
 </a>
 
-The app is published on these platforms, yet it might not be always up to date:
+Floating Mute is also published on these platforms, updates tend to appear there faster than F-Droid in general:
+
 - [Uptodown](https://floating-mute.en.uptodown.com/android)
 
 - [OpenAPK](https://www.openapk.net/floating-mute/com.github.mkalmousli.floating_mute/)
@@ -35,7 +36,7 @@ The app is published on these platforms, yet it might not be always up to date:
 - [IzzyOnDroid](https://apt.izzysoft.de/fdroid/index/apk/com.github.mkalmousli.floating_mute)
 
 
-Please don't try to install it from other sources, as they might have changed the code.
+There might be other sources where you can get the app, but note that they are NOT RECOMMENDED as they might have changed the code!
 
 
 ## Features
