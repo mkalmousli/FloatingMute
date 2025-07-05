@@ -16,14 +16,14 @@ F-Droid is the official and recommend way to get Floating Mute:
 
 
 <a href="https://f-droid.org/en/packages/com.github.mkalmousli.floating_mute">
-    <img src="https://f-droid.org/badge/get-it-on.svg" height="90" />
+    <img src="https://f-droid.org/badge/get-it-on.svg" width="250px" />
 </a>
 
 
 F-Droid takes a while to publish new versions, if you want to get latest version, you can get it from GitHub releases:
 
 <a href="https://github.com/mkalmousli/FloatingMute/releases/latest">
-    <img src="get_it_on_github.png" width="200"/>
+    <img src="get_it_on_github.png" width="200px"/>
 </a>
 
 Floating Mute is also published on these platforms, updates tend to appear there faster than F-Droid in general:
