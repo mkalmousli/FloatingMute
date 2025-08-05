@@ -83,6 +83,10 @@ I appreciate the support from the tech community!
     > — April 11, 2025
 
 ## License
-[![GNU GPLv3 Image](https://www.gnu.org/graphics/gplv3-127x51.png)](https://www.gnu.org/licenses/gpl-3.0.en.html)  
+[![GNU GPLv3 Image](https://www.gnu.org/graphics/gplv3-127x51.png)](https://www.gnu.org/licenses/gpl-3.0.en.html) [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmkalmousli%2FFloatingMute.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fmkalmousli%2FFloatingMute?ref=badge_shield)
+ 
 
 Floating Mute is Free Software: You can use, study, share, and improve it at will. Specifically you can redistribute and/or modify it under the terms of the [GNU General Public License](https://www.gnu.org/licenses/gpl.html) as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmkalmousli%2FFloatingMute.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fmkalmousli%2FFloatingMute?ref=badge_large)
