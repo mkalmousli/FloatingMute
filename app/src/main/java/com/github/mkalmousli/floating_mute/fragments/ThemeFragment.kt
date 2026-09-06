@@ -11,37 +11,30 @@ import android.widget.FrameLayout
 import android.widget.HorizontalScrollView
 import android.widget.ImageView
 import android.widget.LinearLayout
-import androidx.core.view.updatePadding
+import android.widget.TextView
 import androidx.core.widget.ImageViewCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.github.mkalmousli.floating_mute.AppTheme
 import com.github.mkalmousli.floating_mute.Appearance
 import com.github.mkalmousli.floating_mute.MATCH
 import com.github.mkalmousli.floating_mute.R
 import com.github.mkalmousli.floating_mute.WRAP
-import com.github.mkalmousli.floating_mute.appThemeFlow
 import com.github.mkalmousli.floating_mute.appearanceFlow
 import com.github.mkalmousli.floating_mute.bodyText
-import com.github.mkalmousli.floating_mute.card
+import com.github.mkalmousli.floating_mute.bigButton
+import com.github.mkalmousli.floating_mute.colorDotBackground
 import com.github.mkalmousli.floating_mute.dp
 import com.github.mkalmousli.floating_mute.linLp
-import com.github.mkalmousli.floating_mute.outlinedButton
 import com.github.mkalmousli.floating_mute.screen
 import com.github.mkalmousli.floating_mute.sectionLabel
 import com.github.mkalmousli.floating_mute.themeColor
-import com.github.mkalmousli.floating_mute.titleText
 import com.github.mkalmousli.floating_mute.topBar
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.button.MaterialButtonToggleGroup
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-/**
- * One place to shape the whole look of the app: the UI theme and every
- * visual aspect of the floating button, with a live preview.
- */
+/** Fine-tune the floating button: size, feel and colours, with a live preview. */
 class ThemeFragment : Fragment() {
 
     private val swatches = intArrayOf(
@@ -56,6 +49,9 @@ class ThemeFragment : Fragment() {
         lifecycleScope.launch { appearanceFlow.emit(block(a())) }
     }
 
+    private fun dp(v: Int) = requireContext().dp(v)
+    private fun pad(v: View) = v.apply { setPadding(dp(20), dp(6), dp(20), dp(6)) }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -65,10 +61,10 @@ class ThemeFragment : Fragment() {
 
         lateinit var previewIcon: ImageView
         lateinit var previewChip: LinearLayout
-        lateinit var sizeLabel: android.widget.TextView
-        lateinit var opacityLabel: android.widget.TextView
-        lateinit var cornerLabel: android.widget.TextView
-        lateinit var delayLabel: android.widget.TextView
+        lateinit var sizeLabel: TextView
+        lateinit var opacityLabel: TextView
+        lateinit var cornerLabel: TextView
+        lateinit var delayLabel: TextView
 
         val root = c.screen {
 
@@ -76,117 +72,58 @@ class ThemeFragment : Fragment() {
                 requireActivity().supportFragmentManager.popBackStack()
             })
 
-            // --- live preview ---
-            addView(c.card {
-                addView(c.sectionLabel(getString(R.string.preview)))
-                previewIcon = ImageView(c).apply { setImageResource(R.drawable.volume_up_50) }
-                previewChip = LinearLayout(c).apply {
-                    gravity = Gravity.CENTER
-                    setPadding(dp(10), dp(10), dp(10), dp(10))
-                    addView(previewIcon)
-                }
-                addView(FrameLayout(c).apply {
-                    layoutParams = linLp(MATCH, dp(110), dp(6))
-                    addView(previewChip, FrameLayout.LayoutParams(WRAP, WRAP, Gravity.CENTER))
-                })
+            // preview
+            addView(c.sectionLabel(getString(R.string.preview)))
+            previewIcon = ImageView(c).apply { setImageResource(R.drawable.volume_up_50) }
+            previewChip = LinearLayout(c).apply {
+                gravity = Gravity.CENTER
+                setPadding(dp(10), dp(10), dp(10), dp(10))
+                addView(previewIcon)
+            }
+            addView(FrameLayout(c).apply {
+                layoutParams = linLp(MATCH, dp(128))
+                addView(previewChip, FrameLayout.LayoutParams(WRAP, WRAP, Gravity.CENTER))
             })
 
-            // --- app theme ---
-            addView(c.card {
-                addView(c.titleText(getString(R.string.app_theme)))
-                val group = MaterialButtonToggleGroup(c).apply {
-                    isSingleSelection = true
-                    layoutParams = linLp(MATCH, WRAP, dp(12))
-                }
-                val ids = IntArray(AppTheme.values().size)
-                AppTheme.values().forEachIndexed { i, t ->
-                    val b = MaterialButton(
-                        c, null, com.google.android.material.R.attr.materialButtonOutlinedStyle
-                    ).apply {
-                        id = View.generateViewId()
-                        text = getString(
-                            when (t) {
-                                AppTheme.System -> R.string.theme_system
-                                AppTheme.Light -> R.string.theme_light
-                                AppTheme.Dark -> R.string.theme_dark
-                            }
-                        )
-                        layoutParams = LinearLayout.LayoutParams(0, WRAP, 1f)
-                    }
-                    ids[i] = b.id
-                    group.addView(b)
-                }
-                addView(group)
-                group.addOnButtonCheckedListener { _, checkedId, isChecked ->
-                    if (!isChecked) return@addOnButtonCheckedListener
-                    val idx = ids.indexOf(checkedId)
-                    if (idx >= 0) lifecycleScope.launch { appThemeFlow.emit(AppTheme.values()[idx]) }
-                }
-                lifecycleScope.launch {
-                    appThemeFlow.collectLatest {
-                        val id = ids[it.ordinal]
-                        if (group.checkedButtonId != id) group.check(id)
-                    }
-                }
-            })
+            // feel
+            addView(c.sectionLabel(getString(R.string.button_shape_feel)))
+            sizeLabel = label(); addView(sizeLabel)
+            addView(pad(slider(Appearance.MIN_SIZE, Appearance.MAX_SIZE, 4, { a().buttonSize }) {
+                update { s -> s.copy(buttonSize = it) }
+            }))
+            opacityLabel = label(); addView(opacityLabel)
+            addView(pad(slider(Appearance.MIN_OPACITY, Appearance.MAX_OPACITY, 5, { a().opacity }) {
+                update { s -> s.copy(opacity = it) }
+            }))
+            cornerLabel = label(); addView(cornerLabel)
+            addView(pad(slider(0, Appearance.MAX_CORNER, 2, { a().cornerRadius }) {
+                update { s -> s.copy(cornerRadius = it) }
+            }))
+            delayLabel = label(); addView(delayLabel)
+            addView(pad(slider(0, Appearance.MAX_MOVE_DELAY, 25, { a().moveDelayMs }) {
+                update { s -> s.copy(moveDelayMs = it) }
+            }))
 
-            // --- button shape & feel ---
-            addView(c.card {
-                addView(c.titleText(getString(R.string.button_shape_feel)))
+            // colours
+            addView(c.sectionLabel(getString(R.string.colors)))
+            addView(caption(getString(R.string.button_background)))
+            addView(swatchRow({ a().backgroundColor }) { col -> update { it.copy(backgroundColor = col) } })
+            addView(caption(getString(R.string.icon_color)))
+            addView(swatchRow({ a().iconColor }) { col -> update { it.copy(iconColor = col) } })
+            addView(caption(getString(R.string.percentage_background)))
+            addView(swatchRow({ a().percentageBackgroundColor }) { col -> update { it.copy(percentageBackgroundColor = col) } })
+            addView(caption(getString(R.string.percentage_text)))
+            addView(swatchRow({ a().percentageTextColor }) { col -> update { it.copy(percentageTextColor = col) } })
 
-                sizeLabel = bodyLabel()
-                addView(sizeLabel)
-                addView(slider(Appearance.MIN_SIZE, Appearance.MAX_SIZE, 4, { a().buttonSize }) { v ->
-                    update { it.copy(buttonSize = v) }
-                })
-
-                opacityLabel = bodyLabel()
-                addView(opacityLabel)
-                addView(slider(Appearance.MIN_OPACITY, Appearance.MAX_OPACITY, 5, { a().opacity }) { v ->
-                    update { it.copy(opacity = v) }
-                })
-
-                cornerLabel = bodyLabel()
-                addView(cornerLabel)
-                addView(slider(0, Appearance.MAX_CORNER, 2, { a().cornerRadius }) { v ->
-                    update { it.copy(cornerRadius = v) }
-                })
-
-                delayLabel = bodyLabel()
-                addView(delayLabel)
-                addView(slider(0, Appearance.MAX_MOVE_DELAY, 25, { a().moveDelayMs }) { v ->
-                    update { it.copy(moveDelayMs = v) }
-                })
-            })
-
-            // --- colors ---
-            addView(c.card {
-                addView(c.titleText(getString(R.string.colors)))
-
-                addView(c.sectionLabel(getString(R.string.button_background)))
-                addView(swatchRow { color -> update { it.copy(backgroundColor = color) } })
-
-                addView(c.sectionLabel(getString(R.string.icon_color)))
-                addView(swatchRow { color -> update { it.copy(iconColor = color) } })
-
-                addView(c.sectionLabel(getString(R.string.percentage_background)))
-                addView(swatchRow { color -> update { it.copy(percentageBackgroundColor = color) } })
-
-                addView(c.sectionLabel(getString(R.string.percentage_text)))
-                addView(swatchRow { color -> update { it.copy(percentageTextColor = color) } })
-            })
-
-            addView(c.outlinedButton(getString(R.string.reset_to_defaults)) {
-                update { Appearance.DEFAULT }
-            }.apply { layoutParams = linLp(MATCH, WRAP, dp(16)) })
+            addView(c.bigButton(getString(R.string.reset_to_defaults)) { confirmReset() }
+                .apply { (layoutParams as LinearLayout.LayoutParams).topMargin = dp(24) })
         }
 
         lifecycleScope.launch {
             appearanceFlow.collectLatest { ap ->
                 val size = c.dp(ap.buttonSize)
-                previewIcon.layoutParams = (previewIcon.layoutParams ?: ViewGroup.LayoutParams(size, size)).apply {
-                    width = size; height = size
-                }
+                previewIcon.layoutParams = (previewIcon.layoutParams ?: ViewGroup.LayoutParams(size, size))
+                    .apply { width = size; height = size }
                 previewIcon.requestLayout()
                 ImageViewCompat.setImageTintList(
                     previewIcon, android.content.res.ColorStateList.valueOf(ap.iconColor)
@@ -197,26 +134,39 @@ class ThemeFragment : Fragment() {
                 }
                 previewChip.alpha = ap.opacity / 100f
 
-                sizeLabel.text = getString(R.string.button_size) + ":  ${ap.buttonSize} dp"
-                opacityLabel.text = getString(R.string.opacity) + ":  ${ap.opacity}%"
-                cornerLabel.text = getString(R.string.corner_radius) + ":  ${ap.cornerRadius} dp"
-                delayLabel.text = getString(R.string.move_sensitivity) + ":  ${ap.moveDelayMs} ms"
+                sizeLabel.text = getString(R.string.button_size) + "   ${ap.buttonSize} dp"
+                opacityLabel.text = getString(R.string.opacity) + "   ${ap.opacity}%"
+                cornerLabel.text = getString(R.string.corner_radius) + "   ${ap.cornerRadius} dp"
+                delayLabel.text = getString(R.string.move_sensitivity) + "   ${ap.moveDelayMs} ms"
             }
         }
 
         return root
     }
 
-    private fun bodyLabel() = requireContext().bodyText("").apply {
-        layoutParams = linLp(MATCH, WRAP, dp(10))
+    private fun confirmReset() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.reset_confirm_title)
+            .setMessage(R.string.reset_confirm_body)
+            .setNegativeButton(R.string.cancel, null)
+            .setPositiveButton(R.string.reset_to_defaults) { _, _ ->
+                update { Appearance.DEFAULT }
+            }
+            .show()
+    }
+
+    private fun label() = requireContext().bodyText("").apply {
+        setPadding(dp(20), dp(16), dp(20), dp(2))
+        setTextColor(requireContext().themeColor(com.google.android.material.R.attr.colorOnSurface))
+    }
+
+    private fun caption(text: String) = requireContext().bodyText(text).apply {
+        setPadding(dp(20), dp(14), dp(20), dp(2))
     }
 
     private fun slider(
-        min: Int,
-        max: Int,
-        step: Int,
-        get: () -> Int,
-        onChange: (Int) -> Unit,
+        min: Int, max: Int, step: Int,
+        get: () -> Int, onChange: (Int) -> Unit,
     ): Slider {
         fun snap(raw: Int): Float {
             val clamped = raw.coerceIn(min, max)
@@ -239,30 +189,37 @@ class ThemeFragment : Fragment() {
         }
     }
 
-    private fun swatchRow(onPick: (Int) -> Unit): View {
+    private fun swatchRow(selected: () -> Int, onPick: (Int) -> Unit): View {
         val c = requireContext()
         val row = LinearLayout(c).apply {
             orientation = LinearLayout.HORIZONTAL
-            updatePadding(top = dp(8), bottom = dp(4))
+            setPadding(dp(20), dp(6), dp(20), dp(6))
         }
-        val outline = c.themeColor(com.google.android.material.R.attr.colorOutline)
-        for (color in swatches) {
-            val transparent = Color.alpha(color) == 0
-            row.addView(View(c).apply {
-                layoutParams = LinearLayout.LayoutParams(dp(34), dp(34)).apply { marginEnd = dp(10) }
-                background = GradientDrawable().apply {
-                    shape = GradientDrawable.OVAL
-                    setColor(if (transparent) c.themeColor(com.google.android.material.R.attr.colorSurface) else color)
-                    setStroke(dp(if (transparent) 2 else 1), outline)
-                }
+        val dots = swatches.map { color ->
+            val v = View(c).apply {
+                layoutParams = LinearLayout.LayoutParams(dp(40), dp(40)).apply { marginEnd = dp(12) }
+                background = c.colorDotBackground(color, color == selected())
+                contentDescription =
+                    if ((color ushr 24) == 0) getString(R.string.transparent) else null
                 setOnClickListener { onPick(color) }
-            })
+            }
+            color to v
+        }
+        dots.forEach { row.addView(it.second) }
+
+        var last = selected()
+        lifecycleScope.launch {
+            appearanceFlow.collectLatest {
+                val sel = selected()
+                if (sel != last) {
+                    last = sel
+                    dots.forEach { (color, v) -> v.background = c.colorDotBackground(color, color == sel) }
+                }
+            }
         }
         return HorizontalScrollView(c).apply {
             isHorizontalScrollBarEnabled = false
             addView(row)
         }
     }
-
-    private fun dp(v: Int) = requireContext().dp(v)
 }

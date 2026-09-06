@@ -9,7 +9,6 @@ import com.github.mkalmousli.floating_mute.MATCH
 import com.github.mkalmousli.floating_mute.R
 import com.github.mkalmousli.floating_mute.WRAP
 import com.github.mkalmousli.floating_mute.bodyText
-import com.github.mkalmousli.floating_mute.card
 import com.github.mkalmousli.floating_mute.dp
 import com.github.mkalmousli.floating_mute.linLp
 import com.github.mkalmousli.floating_mute.screen
@@ -29,14 +28,14 @@ class HowToUseFragment : Fragment() {
                 requireActivity().supportFragmentManager.popBackStack()
             })
 
-            addView(c.card {
-                getString(R.string.instructions).split("\n").filter { it.isNotBlank() }
-                    .forEachIndexed { i, line ->
-                        addView(c.bodyText(line.trim()).apply {
-                            layoutParams = linLp(MATCH, WRAP, if (i == 0) 0 else dp(10))
-                        })
-                    }
-            })
+            getString(R.string.instructions).split("\n").filter { it.isNotBlank() }
+                .forEach { line ->
+                    addView(c.bodyText("•  " + line.trim()).apply {
+                        textSize = 16f
+                        layoutParams = linLp(MATCH, WRAP, dp(14))
+                        setPadding(dp(20), 0, dp(20), 0)
+                    })
+                }
         }
     }
 }

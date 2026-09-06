@@ -8,6 +8,7 @@
 
     <string name="back">Back</string>
     <string name="how_to_use">How to use</string>
+    <string name="about">About</string>
     <string name="enabled">Enabled</string>
     <string name="disabled">Off</string>
     <string name="hidden">Hidden</string>
@@ -47,6 +48,12 @@
     <string name="percentage_background">Volume % background</string>
     <string name="percentage_text">Volume % text</string>
     <string name="reset_to_defaults">Reset</string>
+    <string name="reset_confirm_title">Reset button settings?</string>
+    <string name="reset_confirm_body">Size, colours, opacity and speed go back to their defaults. Your app theme is kept.</string>
+    <string name="cancel">Cancel</string>
+    <string name="transparent">Transparent</string>
+    <string name="appearance">Button appearance</string>
+    <string name="appearance_subtitle">Size, colours, opacity, corners</string>
     <string name="preview">Preview</string>
     <string name="status_line">%1$s</string>
     <string name="version_footer">v%1$s · %2$s</string>

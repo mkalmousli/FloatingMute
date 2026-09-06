@@ -1,22 +1,29 @@
 package com.github.mkalmousli.floating_mute
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.LayerDrawable
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewOutlineProvider
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import androidx.core.view.updatePadding
 import androidx.core.widget.NestedScrollView
 import androidx.core.widget.TextViewCompat
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.card.MaterialCardView
 import com.google.android.material.textview.MaterialTextView
 
 /**
- * A tiny Material 3 kit so every screen looks like one app.
- * Tuned to be compact: tight padding, small type, no filler.
+ * A tiny Material 3 kit. Flat: no card radius, no strokes. Full-bleed rows,
+ * large tap targets, clear labels.
  */
 
 val MATCH = ViewGroup.LayoutParams.MATCH_PARENT
@@ -31,15 +38,25 @@ fun Context.themeColor(attr: Int): Int {
     return tv.data
 }
 
+private fun Context.rippleRes(borderless: Boolean = false): Int {
+    val tv = TypedValue()
+    theme.resolveAttribute(
+        if (borderless) android.R.attr.selectableItemBackgroundBorderless
+        else android.R.attr.selectableItemBackground,
+        tv, true
+    )
+    return tv.resourceId
+}
+
 fun linLp(w: Int, h: Int, topMargin: Int = 0) = LinearLayout.LayoutParams(w, h).apply {
     this.topMargin = topMargin
 }
 
-/** A vertically-scrolling screen with tight page margins. */
+/** A full-height, vertically-scrolling surface that fills the screen. */
 fun Context.screen(build: LinearLayout.() -> Unit): View {
     val column = LinearLayout(this).apply {
         orientation = LinearLayout.VERTICAL
-        updatePadding(dp(12), dp(10), dp(12), dp(20))
+        updatePadding(0, 0, 0, dp(28))
         layoutParams = ViewGroup.LayoutParams(MATCH, WRAP)
         build()
     }
@@ -50,56 +67,9 @@ fun Context.screen(build: LinearLayout.() -> Unit): View {
     }
 }
 
-/** A compact surface card holding a vertical stack of content. */
-fun Context.card(topMargin: Int = dp(8), build: LinearLayout.() -> Unit): MaterialCardView {
-    val inner = LinearLayout(this).apply {
-        orientation = LinearLayout.VERTICAL
-        updatePadding(dp(14), dp(12), dp(14), dp(14))
-        build()
-    }
-    return MaterialCardView(this).apply {
-        layoutParams = linLp(MATCH, WRAP, topMargin)
-        radius = dp(18).toFloat()
-        cardElevation = 0f
-        setCardBackgroundColor(themeColor(com.google.android.material.R.attr.colorSurfaceVariant))
-        addView(inner)
-    }
-}
-
-/** A back arrow + title, used at the top of secondary screens. */
-fun Context.topBar(title: String, onBack: () -> Unit): View {
-    val ripple = TypedValue().also {
-        theme.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, it, true)
-    }
-    val back = ImageButton(this).apply {
-        setImageResource(R.drawable.ic_arrow_back)
-        contentDescription = getString(R.string.back)
-        setBackgroundResource(ripple.resourceId)
-        val pad = dp(7)
-        setPadding(pad, pad, pad, pad)
-        layoutParams = LinearLayout.LayoutParams(dp(42), dp(42))
-        setOnClickListener { onBack() }
-    }
-    val label = MaterialTextView(this).apply {
-        text = title
-        TextViewCompat.setTextAppearance(
-            this, com.google.android.material.R.style.TextAppearance_Material3_TitleLarge
-        )
-        setTextColor(themeColor(com.google.android.material.R.attr.colorOnSurface))
-        layoutParams = LinearLayout.LayoutParams(0, WRAP, 1f).apply { marginStart = dp(4) }
-    }
-    return LinearLayout(this).apply {
-        orientation = LinearLayout.HORIZONTAL
-        gravity = Gravity.CENTER_VERTICAL
-        layoutParams = linLp(MATCH, WRAP, 0)
-        addView(back)
-        addView(label)
-    }
-}
-
 fun Context.headline(text: String) = MaterialTextView(this).apply {
     this.text = text
-    TextViewCompat.setTextAppearance(this, com.google.android.material.R.style.TextAppearance_Material3_TitleLarge)
+    TextViewCompat.setTextAppearance(this, com.google.android.material.R.style.TextAppearance_Material3_HeadlineSmall)
     setTextColor(themeColor(com.google.android.material.R.attr.colorOnSurface))
 }
 
@@ -115,56 +85,154 @@ fun Context.bodyText(text: String) = MaterialTextView(this).apply {
     setTextColor(themeColor(com.google.android.material.R.attr.colorOnSurfaceVariant))
 }
 
+/** A left-aligned group heading with room above it. */
 fun Context.sectionLabel(text: String) = MaterialTextView(this).apply {
     this.text = text.uppercase()
-    TextViewCompat.setTextAppearance(this, com.google.android.material.R.style.TextAppearance_Material3_LabelSmall)
+    TextViewCompat.setTextAppearance(this, com.google.android.material.R.style.TextAppearance_Material3_LabelLarge)
     setTextColor(themeColor(com.google.android.material.R.attr.colorPrimary))
     letterSpacing = 0.06f
-    layoutParams = linLp(MATCH, WRAP, dp(12))
+    setPadding(dp(20), dp(22), dp(20), dp(6))
+    layoutParams = linLp(MATCH, WRAP)
 }
 
-fun Context.filledButton(text: String, onClick: () -> Unit) =
+/** A back arrow + title, used at the top of secondary screens. */
+fun Context.topBar(title: String, onBack: () -> Unit): View {
+    val back = ImageButton(this).apply {
+        setImageResource(R.drawable.ic_arrow_back)
+        contentDescription = getString(R.string.back)
+        setBackgroundResource(rippleRes(borderless = true))
+        val pad = dp(10)
+        setPadding(pad, pad, pad, pad)
+        layoutParams = LinearLayout.LayoutParams(dp(52), dp(52))
+        setOnClickListener { onBack() }
+    }
+    val label = headline(title).apply {
+        layoutParams = LinearLayout.LayoutParams(0, WRAP, 1f).apply { marginStart = dp(4) }
+    }
+    return LinearLayout(this).apply {
+        orientation = LinearLayout.HORIZONTAL
+        gravity = Gravity.CENTER_VERTICAL
+        setPadding(dp(8), dp(8), dp(12), dp(8))
+        layoutParams = linLp(MATCH, WRAP)
+        addView(back)
+        addView(label)
+    }
+}
+
+/** Full-width primary action. Big, obvious, no fuss. */
+fun Context.bigButton(text: String, onClick: () -> Unit) =
     MaterialButton(this).apply {
         this.text = text
-        layoutParams = linLp(MATCH, WRAP, dp(6))
+        TextViewCompat.setTextAppearance(this, com.google.android.material.R.style.TextAppearance_Material3_TitleMedium)
+        isAllCaps = false
+        minimumHeight = dp(60)
+        cornerRadius = 0
+        insetTop = 0
+        insetBottom = 0
+        layoutParams = linLp(MATCH, dp(60), dp(2)).apply {
+            marginStart = dp(16); marginEnd = dp(16)
+        }
         setOnClickListener { onClick() }
     }
 
-fun Context.outlinedButton(text: String, onClick: () -> Unit) =
-    MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle).apply {
-        this.text = text
-        layoutParams = linLp(MATCH, WRAP, dp(6))
-        setOnClickListener { onClick() }
-    }
-
-/** A tappable card row: title (+ optional subtitle) and a chevron. */
-fun Context.navRow(title: String, subtitle: String? = null, onClick: () -> Unit): View {
+/**
+ * A full-bleed tappable row: bold title, optional subtitle, optional
+ * trailing control (switch, chevron). The whole row is the tap target.
+ */
+fun Context.row(
+    title: String,
+    subtitle: String? = null,
+    trailing: View? = null,
+    bindSubtitle: ((MaterialTextView) -> Unit)? = null,
+    onClick: (() -> Unit)? = null,
+): View {
     val texts = LinearLayout(this).apply {
         orientation = LinearLayout.VERTICAL
         layoutParams = LinearLayout.LayoutParams(0, WRAP, 1f)
-        addView(titleText(title))
-        if (subtitle != null) addView(bodyText(subtitle))
+        addView(MaterialTextView(this@row).apply {
+            this.text = title
+            TextViewCompat.setTextAppearance(this, com.google.android.material.R.style.TextAppearance_Material3_TitleMedium)
+            textSize = 17f
+            setTextColor(themeColor(com.google.android.material.R.attr.colorOnSurface))
+        })
+        if (subtitle != null || bindSubtitle != null) addView(bodyText(subtitle ?: "").apply {
+            layoutParams = linLp(MATCH, WRAP, dp(2))
+            bindSubtitle?.invoke(this)
+        })
     }
-    val chevron = MaterialTextView(this).apply {
-        text = "›"
-        TextViewCompat.setTextAppearance(this, com.google.android.material.R.style.TextAppearance_Material3_TitleLarge)
-        setTextColor(themeColor(com.google.android.material.R.attr.colorOnSurfaceVariant))
-    }
-    val row = LinearLayout(this).apply {
+    return LinearLayout(this).apply {
         orientation = LinearLayout.HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
-        updatePadding(dp(16), dp(12), dp(16), dp(12))
+        minimumHeight = dp(68)
+        setPadding(dp(20), dp(14), dp(20), dp(14))
+        layoutParams = linLp(MATCH, WRAP)
+        if (onClick != null) {
+            isClickable = true
+            isFocusable = true
+            setBackgroundResource(rippleRes())
+            setOnClickListener { onClick() }
+        }
         addView(texts)
-        addView(chevron)
+        if (trailing != null) {
+            trailing.apply {
+                if (layoutParams == null) layoutParams = LinearLayout.LayoutParams(WRAP, WRAP)
+                (layoutParams as? LinearLayout.LayoutParams)?.marginStart = dp(12)
+            }
+            addView(trailing)
+        }
     }
-    return MaterialCardView(this).apply {
-        layoutParams = linLp(MATCH, WRAP, dp(8))
-        radius = dp(16).toFloat()
-        cardElevation = 0f
-        isClickable = true
-        isFocusable = true
-        setCardBackgroundColor(themeColor(com.google.android.material.R.attr.colorSurfaceVariant))
-        addView(row)
-        setOnClickListener { onClick() }
+}
+
+fun Context.chevron() = MaterialTextView(this).apply {
+    text = "›"
+    TextViewCompat.setTextAppearance(this, com.google.android.material.R.style.TextAppearance_Material3_HeadlineSmall)
+    setTextColor(themeColor(com.google.android.material.R.attr.colorOnSurfaceVariant))
+}
+
+/** Background for one swatch; a checkerboard means "transparent". */
+fun Context.colorDotBackground(color: Int, selected: Boolean): Drawable {
+    val strokeColor =
+        if (selected) themeColor(com.google.android.material.R.attr.colorPrimary)
+        else themeColor(com.google.android.material.R.attr.colorOutline)
+    val strokePx = dp(if (selected) 3 else 1)
+    val transparent = (color ushr 24) == 0
+
+    val fill: Drawable = if (transparent) {
+        checkerDrawable(0x33808080, themeColor(com.google.android.material.R.attr.colorSurface), dp(5))
+    } else {
+        GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(color) }
+    }
+    val ring = GradientDrawable().apply {
+        shape = GradientDrawable.OVAL
+        setColor(0x00000000)
+        setStroke(strokePx, strokeColor)
+    }
+    return LayerDrawable(arrayOf(fill, ring))
+}
+
+/** Circular colour dot for a swatch picker. */
+fun Context.colorDot(color: Int, sizeDp: Int, selected: Boolean): View =
+    View(this).apply {
+        layoutParams = LinearLayout.LayoutParams(dp(sizeDp), dp(sizeDp)).apply { marginEnd = dp(12) }
+        background = colorDotBackground(color, selected)
+        clipToOutline = true
+        outlineProvider = object : ViewOutlineProvider() {
+            override fun getOutline(v: View, o: android.graphics.Outline) {
+                o.setOval(0, 0, v.width, v.height)
+            }
+        }
+    }
+
+private fun Context.checkerDrawable(dark: Int, light: Int, cellPx: Int): BitmapDrawable {
+    val n = cellPx.coerceAtLeast(2)
+    val bmp = Bitmap.createBitmap(n * 2, n * 2, Bitmap.Config.ARGB_8888)
+    Canvas(bmp).apply {
+        drawColor(light)
+        val p = Paint().apply { color = dark }
+        drawRect(0f, 0f, n.toFloat(), n.toFloat(), p)
+        drawRect(n.toFloat(), n.toFloat(), n * 2f, n * 2f, p)
+    }
+    return BitmapDrawable(resources, bmp).apply {
+        setTileModeXY(android.graphics.Shader.TileMode.REPEAT, android.graphics.Shader.TileMode.REPEAT)
     }
 }

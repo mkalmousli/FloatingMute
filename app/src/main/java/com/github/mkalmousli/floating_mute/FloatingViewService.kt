@@ -178,6 +178,19 @@ class FloatingViewService : Service() {
         binds.percentage.setBackgroundColor(a.percentageBackgroundColor)
         binds.percentage.setTextColor(a.percentageTextColor)
 
+        // Size the "100%" label from the button, not the user's font scale,
+        // and let it shrink further if it still doesn't fit the button width.
+        binds.percentage.maxLines = 1
+        val maxPx = (sizePx * 0.34f).coerceIn(dp(7).toFloat(), dp(20).toFloat())
+        androidx.core.widget.TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(
+            binds.percentage,
+            dp(6),
+            maxPx.toInt().coerceAtLeast(dp(6) + 1),
+            1,
+            android.util.TypedValue.COMPLEX_UNIT_PX
+        )
+        binds.percentage.setPadding(dp(2), 0, dp(2), 0)
+
         if (viewAdded) {
             try {
                 windowManager.updateViewLayout(binds.root, params)
