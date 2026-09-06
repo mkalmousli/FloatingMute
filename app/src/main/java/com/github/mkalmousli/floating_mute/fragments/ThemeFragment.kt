@@ -25,10 +25,9 @@ import com.github.mkalmousli.floating_mute.bigButton
 import com.github.mkalmousli.floating_mute.colorDotBackground
 import com.github.mkalmousli.floating_mute.dp
 import com.github.mkalmousli.floating_mute.linLp
-import com.github.mkalmousli.floating_mute.screen
+import com.github.mkalmousli.floating_mute.screenWithBar
 import com.github.mkalmousli.floating_mute.sectionLabel
 import com.github.mkalmousli.floating_mute.themeColor
-import com.github.mkalmousli.floating_mute.topBar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
 import kotlinx.coroutines.flow.collectLatest
@@ -66,11 +65,9 @@ class ThemeFragment : Fragment() {
         lateinit var cornerLabel: TextView
         lateinit var delayLabel: TextView
 
-        val root = c.screen {
-
-            addView(c.topBar(getString(R.string.themes)) {
-                requireActivity().supportFragmentManager.popBackStack()
-            })
+        val root = c.screenWithBar(getString(R.string.themes), {
+            requireActivity().supportFragmentManager.popBackStack()
+        }) {
 
             // preview
             addView(c.sectionLabel(getString(R.string.preview)))

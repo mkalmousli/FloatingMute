@@ -23,8 +23,9 @@ import com.github.mkalmousli.floating_mute.appThemeFlow
 import com.github.mkalmousli.floating_mute.bodyText
 import com.github.mkalmousli.floating_mute.chevron
 import com.github.mkalmousli.floating_mute.dp
-import com.github.mkalmousli.floating_mute.headline
+import com.github.mkalmousli.floating_mute.heroHeader
 import com.github.mkalmousli.floating_mute.linLp
+import com.github.mkalmousli.floating_mute.openIcon
 import com.github.mkalmousli.floating_mute.modeFlow
 import com.github.mkalmousli.floating_mute.openUrl
 import com.github.mkalmousli.floating_mute.prefShowPercentage
@@ -60,21 +61,8 @@ class HomeFragment : Fragment() {
 
         return c.screen {
 
-            // header
-            addView(LinearLayout(c).apply {
-                orientation = LinearLayout.HORIZONTAL
-                gravity = Gravity.CENTER_VERTICAL
-                setPadding(dp(20), dp(20), dp(20), dp(8))
-                addView(ImageView(c).apply {
-                    ImageViewCompat.setImageTintList(this, null)
-                    setImageResource(R.drawable.logo)
-                    layoutParams = LinearLayout.LayoutParams(dp(36), dp(36))
-                })
-                addView(c.headline(getString(R.string.app_name)).apply {
-                    layoutParams = LinearLayout.LayoutParams(0, WRAP, 1f).apply { marginStart = dp(12) }
-                })
-                addView(c.bodyText("v" + BuildConfig.VERSION_NAME).apply { alpha = 0.6f })
-            })
+            // header: logo, name, description
+            addView(c.heroHeader(getString(R.string.app_name), getString(R.string.app_desc)))
 
             // floating button toggle
             val enableSwitch = MaterialSwitch(c)
@@ -179,9 +167,6 @@ class HomeFragment : Fragment() {
                 trailing = c.chevron(),
             ) { open(HowToUseFragment()) })
 
-            // push the about block to the bottom of the screen
-            addView(View(c), linLp(MATCH, 0).apply { weight = 1f })
-
             // about
             addView(c.sectionLabel(getString(R.string.about)))
             addView(LinearLayout(c).apply {
@@ -197,23 +182,16 @@ class HomeFragment : Fragment() {
                     layoutParams = LinearLayout.LayoutParams(WRAP, WRAP).apply { marginStart = dp(12) }
                 })
             })
-            addView(android.widget.HorizontalScrollView(c).apply {
-                isHorizontalScrollBarEnabled = false
-                setPadding(dp(12), dp(4), dp(12), dp(4))
-                addView(LinearLayout(c).apply {
-                    orientation = LinearLayout.HORIZONTAL
-                    fun link(text: String, url: String) = addView(c.bodyText(text).apply {
-                        setTextColor(c.themeColor(com.google.android.material.R.attr.colorPrimary))
-                        setPadding(dp(8), dp(10), dp(8), dp(10))
-                        isClickable = true
-                        setOnClickListener { c.openUrl(url) }
-                    })
-                    link(getString(R.string.website), "https://al-mo.de")
-                    link("Instagram", "https://instagram.com/mkalmousli")
-                    link(getString(R.string.report_an_issue), "https://github.com/mkalmousli/FloatingMute/issues/new")
-                    link(getString(R.string.view_source_code_on_github), "https://github.com/mkalmousli/FloatingMute")
-                })
-            })
+            fun link(title: String, subtitle: String?, url: String) = addView(
+                c.row(title, subtitle = subtitle, trailing = c.openIcon()) { c.openUrl(url) }
+            )
+            link(getString(R.string.donate), getString(R.string.donate_sub), "https://ko-fi.com/mkalmousli")
+            link(getString(R.string.other_app), getString(R.string.other_app_sub), "https://github.com/mkalmousli/FloatingVolume")
+            link(getString(R.string.website), null, "https://al-mo.de")
+            link("Instagram", null, "https://instagram.com/mkalmousli")
+            link(getString(R.string.report_an_issue), null, "https://github.com/mkalmousli/FloatingMute/issues/new")
+            link(getString(R.string.view_source_code_on_github), null, "https://github.com/mkalmousli/FloatingMute")
+
             addView(c.bodyText(
                 getString(R.string.version_footer, BuildConfig.VERSION_NAME, BuildConfig.RELEASE_DAY) +
                     "   ·   " + getString(R.string.license_line)

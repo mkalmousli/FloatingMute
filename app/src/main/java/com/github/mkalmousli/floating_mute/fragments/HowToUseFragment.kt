@@ -11,8 +11,7 @@ import com.github.mkalmousli.floating_mute.WRAP
 import com.github.mkalmousli.floating_mute.bodyText
 import com.github.mkalmousli.floating_mute.dp
 import com.github.mkalmousli.floating_mute.linLp
-import com.github.mkalmousli.floating_mute.screen
-import com.github.mkalmousli.floating_mute.topBar
+import com.github.mkalmousli.floating_mute.screenWithBar
 
 class HowToUseFragment : Fragment() {
 
@@ -23,11 +22,9 @@ class HowToUseFragment : Fragment() {
     ): View {
         val c = requireContext()
 
-        return c.screen {
-            addView(c.topBar(getString(R.string.how_to_use)) {
-                requireActivity().supportFragmentManager.popBackStack()
-            })
-
+        return c.screenWithBar(getString(R.string.how_to_use), {
+            requireActivity().supportFragmentManager.popBackStack()
+        }) {
             getString(R.string.instructions).split("\n").filter { it.isNotBlank() }
                 .forEach { line ->
                     addView(c.bodyText("•  " + line.trim()).apply {

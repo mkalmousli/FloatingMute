@@ -8,14 +8,17 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.LayerDrawable
+import android.content.res.ColorStateList
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.core.view.updatePadding
+import androidx.core.widget.ImageViewCompat
 import androidx.core.widget.NestedScrollView
 import androidx.core.widget.TextViewCompat
 import com.google.android.material.button.MaterialButton
@@ -65,6 +68,63 @@ fun Context.screen(build: LinearLayout.() -> Unit): View {
         setBackgroundColor(themeColor(com.google.android.material.R.attr.colorSurface))
         addView(column)
     }
+}
+
+/** Like [screen] but with a fixed top app bar that stays put while the body scrolls. */
+fun Context.screenWithBar(title: String, onBack: () -> Unit, build: LinearLayout.() -> Unit): View {
+    val column = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        updatePadding(0, dp(4), 0, dp(28))
+        layoutParams = ViewGroup.LayoutParams(MATCH, WRAP)
+        build()
+    }
+    val scroll = NestedScrollView(this).apply {
+        isFillViewport = true
+        addView(column)
+    }
+    val divider = View(this).apply {
+        layoutParams = LinearLayout.LayoutParams(MATCH, dp(1))
+        setBackgroundColor(themeColor(com.google.android.material.R.attr.colorOutlineVariant))
+    }
+    return LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        setBackgroundColor(themeColor(com.google.android.material.R.attr.colorSurface))
+        addView(topBar(title, onBack))
+        addView(divider)
+        addView(scroll, LinearLayout.LayoutParams(MATCH, 0, 1f))
+    }
+}
+
+/** Big app identity block for the top of Home: logo, name, one-line description. */
+fun Context.heroHeader(name: String, description: String): View = LinearLayout(this).apply {
+    orientation = LinearLayout.VERTICAL
+    gravity = Gravity.CENTER_HORIZONTAL
+    setPadding(dp(24), dp(28), dp(24), dp(18))
+    layoutParams = linLp(MATCH, WRAP)
+    addView(ImageView(this@heroHeader).apply {
+        ImageViewCompat.setImageTintList(this, null)
+        setImageResource(R.drawable.logo)
+        layoutParams = LinearLayout.LayoutParams(dp(84), dp(84))
+    })
+    addView(MaterialTextView(this@heroHeader).apply {
+        text = name
+        TextViewCompat.setTextAppearance(
+            this, com.google.android.material.R.style.TextAppearance_Material3_HeadlineMedium
+        )
+        setTextColor(themeColor(com.google.android.material.R.attr.colorOnSurface))
+        gravity = Gravity.CENTER
+        layoutParams = linLp(WRAP, WRAP, dp(12))
+    })
+    addView(bodyText(description).apply {
+        gravity = Gravity.CENTER
+        layoutParams = linLp(MATCH, WRAP, dp(6))
+    })
+}
+
+fun Context.openIcon() = ImageView(this).apply {
+    setImageResource(R.drawable.ic_open_in_new)
+    imageTintList = ColorStateList.valueOf(themeColor(com.google.android.material.R.attr.colorOnSurfaceVariant))
+    layoutParams = LinearLayout.LayoutParams(dp(20), dp(20))
 }
 
 fun Context.headline(text: String) = MaterialTextView(this).apply {

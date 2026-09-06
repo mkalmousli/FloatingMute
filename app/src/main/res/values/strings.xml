@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="app_name">Floating Mute</string>
-    <string name="app_desc">Mute and unmute with one tap.</string>
+    <string name="app_desc">Mute or unmute your media volume with a single tap — perfect for Shorts, Reels and videos.</string>
     <string name="volume_description">Toggle volume.</string>
 
     <string name="channel_name">Floating Mute</string>
@@ -12,14 +12,18 @@
     <string name="enabled">Enabled</string>
     <string name="disabled">Off</string>
     <string name="hidden">Hidden</string>
-    <string name="show_volume_percentage">Volume %</string>
+    <string name="show_volume_percentage">Show Volume Percentage</string>
     <string name="enable_floating_mute">Floating button</string>
 
     <string name="made_by">Made by \@mkalmousli</string>
     <string name="website">Website</string>
     <string name="report_an_issue">Report a bug</string>
-    <string name="view_source_code_on_github">Source</string>
+    <string name="view_source_code_on_github">Source code</string>
     <string name="license_line">GPLv3 · Free software</string>
+    <string name="donate">Support on Ko-fi</string>
+    <string name="donate_sub">Buy me a coffee and keep the app going</string>
+    <string name="other_app">Floating Volume</string>
+    <string name="other_app_sub">My floating volume slider — give it a try</string>
 
     <string name="hide">Hide</string>
     <string name="show">Show</string>
