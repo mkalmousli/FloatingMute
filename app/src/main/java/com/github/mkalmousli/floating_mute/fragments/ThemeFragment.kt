@@ -25,13 +25,13 @@ import com.github.mkalmousli.floating_mute.appearanceFlow
 import com.github.mkalmousli.floating_mute.bodyText
 import com.github.mkalmousli.floating_mute.card
 import com.github.mkalmousli.floating_mute.dp
-import com.github.mkalmousli.floating_mute.headline
 import com.github.mkalmousli.floating_mute.linLp
 import com.github.mkalmousli.floating_mute.outlinedButton
 import com.github.mkalmousli.floating_mute.screen
 import com.github.mkalmousli.floating_mute.sectionLabel
 import com.github.mkalmousli.floating_mute.themeColor
 import com.github.mkalmousli.floating_mute.titleText
+import com.github.mkalmousli.floating_mute.topBar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.slider.Slider
@@ -45,6 +45,7 @@ import kotlinx.coroutines.launch
 class ThemeFragment : Fragment() {
 
     private val swatches = intArrayOf(
+        Color.TRANSPARENT,
         0xFFFFFFFF.toInt(), 0xFF1C1B1F.toInt(), 0xFF444444.toInt(), 0xFF8A8A8A.toInt(),
         0xFFE5484D.toInt(), 0xFFF76808.toInt(), 0xFFFFC53D.toInt(), 0xFF46A758.toInt(),
         0xFF12A594.toInt(), 0xFF3E63DD.toInt(), 0xFF6E56CF.toInt(), 0xFFD6409F.toInt(),
@@ -71,11 +72,8 @@ class ThemeFragment : Fragment() {
 
         val root = c.screen {
 
-            addView(c.outlinedButton(getString(R.string.go_back)) {
+            addView(c.topBar(getString(R.string.themes)) {
                 requireActivity().supportFragmentManager.popBackStack()
-            })
-            addView(c.headline(getString(R.string.themes)).apply {
-                layoutParams = linLp(MATCH, WRAP, dp(8))
             })
 
             // --- live preview ---
@@ -88,7 +86,7 @@ class ThemeFragment : Fragment() {
                     addView(previewIcon)
                 }
                 addView(FrameLayout(c).apply {
-                    layoutParams = linLp(MATCH, dp(150), dp(8))
+                    layoutParams = linLp(MATCH, dp(110), dp(6))
                     addView(previewChip, FrameLayout.LayoutParams(WRAP, WRAP, Gravity.CENTER))
                 })
             })
@@ -210,7 +208,7 @@ class ThemeFragment : Fragment() {
     }
 
     private fun bodyLabel() = requireContext().bodyText("").apply {
-        layoutParams = linLp(MATCH, WRAP, dp(16))
+        layoutParams = linLp(MATCH, WRAP, dp(10))
     }
 
     private fun slider(
@@ -247,13 +245,15 @@ class ThemeFragment : Fragment() {
             orientation = LinearLayout.HORIZONTAL
             updatePadding(top = dp(8), bottom = dp(4))
         }
+        val outline = c.themeColor(com.google.android.material.R.attr.colorOutline)
         for (color in swatches) {
+            val transparent = Color.alpha(color) == 0
             row.addView(View(c).apply {
-                layoutParams = LinearLayout.LayoutParams(dp(36), dp(36)).apply { marginEnd = dp(10) }
+                layoutParams = LinearLayout.LayoutParams(dp(34), dp(34)).apply { marginEnd = dp(10) }
                 background = GradientDrawable().apply {
                     shape = GradientDrawable.OVAL
-                    setColor(color)
-                    setStroke(dp(1), c.themeColor(com.google.android.material.R.attr.colorOutline))
+                    setColor(if (transparent) c.themeColor(com.google.android.material.R.attr.colorSurface) else color)
+                    setStroke(dp(if (transparent) 2 else 1), outline)
                 }
                 setOnClickListener { onPick(color) }
             })

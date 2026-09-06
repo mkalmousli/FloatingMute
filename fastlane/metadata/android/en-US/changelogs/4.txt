@@ -1,9 +1,10 @@
 - Fixed a crash on launch on Android 14+ (a broadcast receiver was registered without an export flag).
 - The floating button now runs as a proper foreground service, so Android no longer kills it in the background.
-- Fully redesigned, modern Material 3 interface with Material You colour support, light/dark themes and a card-based layout.
-- New "Themes" screen: customise the button's size, colours, opacity and corner radius with a live preview; choose System / Light / Dark app theme.
-- Hide the button by dragging it to the bottom edge of the screen (like chat bubbles) instead of long-pressing.
-- Long-press now toggles the volume-percentage label.
-- A short hold is required before a drag starts, so quick mute/unmute taps are no longer swallowed by movement.
+- Brand-new, compact Material 3 interface: one home screen, minimal text, Material You colours, light/dark themes.
+- App theme (System / Light / Dark) now switches instantly.
+- New "Themes" screen: size, colours (transparent included), opacity and corner radius, with a live preview.
+- Hide the button by dragging it to the bottom edge of the screen (like chat bubbles).
+- Long-press toggles the volume-percentage label.
+- A short hold is required before a drag starts, so quick taps aren't swallowed by movement.
 - Fixed settings being reset and the button failing to hide from the notification.
-- Smoother dragging: the position is no longer written to storage on every frame.
+- Faster screen transitions.

@@ -11,11 +11,9 @@ import com.github.mkalmousli.floating_mute.WRAP
 import com.github.mkalmousli.floating_mute.bodyText
 import com.github.mkalmousli.floating_mute.card
 import com.github.mkalmousli.floating_mute.dp
-import com.github.mkalmousli.floating_mute.headline
 import com.github.mkalmousli.floating_mute.linLp
-import com.github.mkalmousli.floating_mute.outlinedButton
 import com.github.mkalmousli.floating_mute.screen
-import com.github.mkalmousli.floating_mute.titleText
+import com.github.mkalmousli.floating_mute.topBar
 
 class HowToUseFragment : Fragment() {
 
@@ -27,21 +25,17 @@ class HowToUseFragment : Fragment() {
         val c = requireContext()
 
         return c.screen {
-            addView(c.outlinedButton(getString(R.string.go_back)) {
+            addView(c.topBar(getString(R.string.how_to_use)) {
                 requireActivity().supportFragmentManager.popBackStack()
             })
-            addView(c.headline(getString(R.string.how_to_use)).apply {
-                layoutParams = linLp(MATCH, WRAP, dp(8))
-            })
 
-            val steps = getString(R.string.instructions).split("\n").filter { it.isNotBlank() }
             addView(c.card {
-                steps.forEachIndexed { i, line ->
-                    addView(c.titleText("${i + 1}").apply {
-                        layoutParams = linLp(MATCH, WRAP, if (i == 0) 0 else dp(16))
-                    })
-                    addView(c.bodyText(line.trim()))
-                }
+                getString(R.string.instructions).split("\n").filter { it.isNotBlank() }
+                    .forEachIndexed { i, line ->
+                        addView(c.bodyText(line.trim()).apply {
+                            layoutParams = linLp(MATCH, WRAP, if (i == 0) 0 else dp(10))
+                        })
+                    }
             })
         }
     }

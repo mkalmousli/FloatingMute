@@ -1,58 +1,53 @@
-<resources xmlns:tools="http://schemas.android.com/tools"  tools:ignore="MissingTranslation">
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="app_name">Floating Mute</string>
-    <string name="volume_description">Click to toggle volume.</string>
+    <string name="app_desc">Mute and unmute with one tap.</string>
+    <string name="volume_description">Toggle volume.</string>
 
-    <!-- Preference Titles -->
-    <string name="channel_name">Floating notification</string>
-    <string name="channel_description">Notification is shown.</string>
+    <string name="channel_name">Floating Mute</string>
+    <string name="channel_description">Keeps the floating button running.</string>
 
-    <string name="go_back">Go Back</string>
-    <string name="how_to_use">How To Use?</string>
-    <string name="app_desc">This app allows you to mute or unmute the volume of your phone with a single click.</string>
-    <string name="about">About</string>
-    <string name="status">Status</string>
+    <string name="back">Back</string>
+    <string name="how_to_use">How to use</string>
     <string name="enabled">Enabled</string>
-    <string name="disabled">Disabled</string>
+    <string name="disabled">Off</string>
     <string name="hidden">Hidden</string>
-    <string name="show_volume_percentage">Show Volume Percentage</string>
-    <string name="enable_floating_mute">Enable Floating Mute</string>
-    <string name="released_on">"Released on "</string>
-    <string name="this_app_was_created_by_mkalmousli">This app was created by @mkalmousli</string>
-    <string name="report_an_issue">Report an issue</string>
-    <string name="view_source_code_on_github">View source code on GitHub</string>
-    <string name="built_on">Built on</string>
+    <string name="show_volume_percentage">Volume %</string>
+    <string name="enable_floating_mute">Floating button</string>
+
+    <string name="made_by">Made by \@mkalmousli</string>
+    <string name="website">Website</string>
+    <string name="report_an_issue">Report a bug</string>
+    <string name="view_source_code_on_github">Source</string>
+    <string name="license_line">GPLv3 · Free software</string>
+
     <string name="hide">Hide</string>
     <string name="show">Show</string>
     <string name="stop">Stop</string>
-    <string name="enabled_notification">Enabled. Hide, or tap to open settings.</string>
-    <string name="disabled_notification">Currently hidden. Show, or tap to open settings.</string>
-    <string name="battery_optimizations">Please grant the battery optimization permission!</string>
-    <string name="notification_permission">Please grant the notification permission!</string>
-    <string name="overlay_permission">Please grant the overlay permission!</string>
-    <string name="failed_to_open_url">Failed to open URL</string>
-    <string name="instructions">Tap the floating button to mute or unmute.\nHold briefly, then drag to move it.\nDrag it to the bottom edge of the screen to hide it (like chat bubbles).\nLong press it to show or hide the volume percentage.\nThe notification allows you to hide and show it at any time.\nYou can also quit the app by tapping on \'Stop\' in the notification.\nTap on the notification to open the app so you can change the settings.</string>
+    <string name="enabled_notification">Tap to open · drag to bottom to hide</string>
+    <string name="disabled_notification">Hidden · tap Show or open the app</string>
+    <string name="failed_to_open_url">Couldn\'t open link</string>
+
+    <string name="instructions">Tap — mute / unmute\nHold, then drag — move\nDrag to the bottom edge — hide\nLong press — toggle volume %\nUse the notification to show, hide or stop</string>
 
     <!-- Themes -->
     <string name="themes">Themes</string>
-    <string name="website">Website</string>
-    <string name="app_theme">App theme</string>
+    <string name="themes_subtitle">Size, colours, opacity, app theme</string>
+    <string name="app_theme">Theme</string>
     <string name="theme_system">System</string>
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
-    <string name="button_size">Button size</string>
+    <string name="button_shape_feel">Button</string>
+    <string name="button_size">Size</string>
     <string name="opacity">Opacity</string>
-    <string name="corner_radius">Corner radius</string>
-    <string name="move_sensitivity">Hold before move</string>
-    <string name="button_background">Button background</string>
-    <string name="icon_color">Icon color</string>
-    <string name="percentage_background">Percentage background</string>
-    <string name="percentage_text">Percentage text</string>
-    <string name="reset_to_defaults">Reset to defaults</string>
+    <string name="corner_radius">Corners</string>
+    <string name="move_sensitivity">Hold to move</string>
+    <string name="colors">Colours</string>
+    <string name="button_background">Background</string>
+    <string name="icon_color">Icon</string>
+    <string name="percentage_background">Volume % background</string>
+    <string name="percentage_text">Volume % text</string>
+    <string name="reset_to_defaults">Reset</string>
     <string name="preview">Preview</string>
-    <string name="colors">Colors</string>
-    <string name="button_shape_feel">Button shape &amp; feel</string>
-    <string name="themes_subtitle">Colours, size, opacity and app theme</string>
-    <string name="quick_settings">Quick settings</string>
-    <string name="status_line">Status: %1$s</string>
+    <string name="status_line">%1$s</string>
     <string name="version_footer">v%1$s · %2$s</string>
 </resources>
