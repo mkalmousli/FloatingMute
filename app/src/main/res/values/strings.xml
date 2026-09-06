@@ -48,4 +48,11 @@
     <string name="percentage_background">Percentage background</string>
     <string name="percentage_text">Percentage text</string>
     <string name="reset_to_defaults">Reset to defaults</string>
+    <string name="preview">Preview</string>
+    <string name="colors">Colors</string>
+    <string name="button_shape_feel">Button shape &amp; feel</string>
+    <string name="themes_subtitle">Colours, size, opacity and app theme</string>
+    <string name="quick_settings">Quick settings</string>
+    <string name="status_line">Status: %1$s</string>
+    <string name="version_footer">v%1$s · %2$s</string>
 </resources>

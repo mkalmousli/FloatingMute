@@ -17,6 +17,7 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import java.text.SimpleDateFormat
@@ -163,25 +164,33 @@ fun applyNightMode(theme: AppTheme) {
 val Context.layoutInflater
     get() = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
-/// https://stackoverflow.com/a/78301846
-val Context.notificationVolumeFlow
-    get() = callbackFlow {
-        val receiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent) {
-                when (intent.getIntExtra("android.media.EXTRA_VOLUME_STREAM_TYPE", 0)) {
-                    AudioManager.STREAM_MUSIC -> trySend(
-                        intent.getIntExtra(
-                            "android.media.EXTRA_VOLUME_STREAM_VALUE",
-                            0
-                        )
-                    )
-                }
+/**
+ * Emits the current STREAM_MUSIC volume whenever the system volume changes.
+ *
+ * Uses [ContextCompat.registerReceiver] with RECEIVER_NOT_EXPORTED — on
+ * Android 14+ registering a receiver for a non-exempt broadcast without an
+ * explicit export flag throws a SecurityException and crashes the app on start.
+ * https://stackoverflow.com/a/78301846
+ */
+fun Context.systemMusicVolumeFlow() = callbackFlow {
+    val receiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.getIntExtra("android.media.EXTRA_VOLUME_STREAM_TYPE", 0)
+                == AudioManager.STREAM_MUSIC
+            ) {
+                trySend(intent.getIntExtra("android.media.EXTRA_VOLUME_STREAM_VALUE", 0))
             }
         }
-
-        registerReceiver(receiver, IntentFilter("android.media.VOLUME_CHANGED_ACTION"))
-        awaitClose { unregisterReceiver(receiver) }
     }
+
+    ContextCompat.registerReceiver(
+        this@systemMusicVolumeFlow,
+        receiver,
+        IntentFilter("android.media.VOLUME_CHANGED_ACTION"),
+        ContextCompat.RECEIVER_NOT_EXPORTED
+    )
+    awaitClose { runCatching { unregisterReceiver(receiver) } }
+}
 
 
 
@@ -189,9 +198,10 @@ fun Context.createNotificationChannel() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         val name = getString(R.string.channel_name)
         val descriptionText = getString(R.string.channel_description)
-        val importance = NotificationManager.IMPORTANCE_DEFAULT
+        val importance = NotificationManager.IMPORTANCE_LOW
         val channel = NotificationChannel(NOTIFICATION_CHANNEL_ID, name, importance).apply {
             description = descriptionText
+            setShowBadge(false)
         }
         val notificationManager: NotificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

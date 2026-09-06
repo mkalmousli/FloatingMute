@@ -12,7 +12,9 @@ import android.graphics.PixelFormat
 import android.graphics.drawable.GradientDrawable
 import android.media.AudioManager
 import android.os.Build
+import android.app.Notification
 import android.app.PendingIntent
+import android.provider.Settings
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
@@ -21,6 +23,7 @@ import android.view.WindowManager.LayoutParams
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.app.ServiceCompat
 import androidx.core.widget.ImageViewCompat
 import com.github.mkalmousli.floating_mute.databinding.FloatingViewBinding
 import kotlinx.coroutines.CoroutineScope
@@ -385,22 +388,48 @@ class FloatingViewService : Service() {
         viewAdded = false
     }
 
+    private var startedForeground = false
+
+    /** Promote the service to the foreground (or just refresh its notification). */
+    private fun goForeground(mode: Mode) {
+        val notification = buildNotification(mode)
+        try {
+            // The foreground-service type is declared in the manifest
+            // (specialUse), so the 2-arg call is correct on every API level.
+            startForeground(NOTIFICATION_ID, notification)
+            startedForeground = true
+        } catch (e: Exception) {
+            // Fall back to a plain notification if the OS refuses the FGS
+            // (e.g. started from the background). The overlay still works.
+            if (hasNotificationPermission()) {
+                NotificationManagerCompat.from(this).notify(NOTIFICATION_ID, notification)
+            }
+        }
+    }
+
     private fun handleModeChange(mode: Mode) {
         when (mode) {
             Mode.Enabled -> {
-                showNotification(mode)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+                    // Nothing we can do without the overlay permission.
+                    scope.launch { modeFlow.emit(Mode.Disabled) }
+                    return
+                }
+                goForeground(mode)
                 addFloatingView()
+            }
+
+            Mode.Hidden -> {
+                goForeground(mode)
+                removeFloatingView()
             }
 
             Mode.Disabled -> {
                 removeFloatingView()
+                ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
+                startedForeground = false
                 NotificationManagerCompat.from(this).cancel(NOTIFICATION_ID)
                 stopSelf()
-            }
-
-            Mode.Hidden -> {
-                showNotification(mode)
-                removeFloatingView()
             }
         }
     }
@@ -411,76 +440,64 @@ class FloatingViewService : Service() {
         const val NOTIFICATION_ID = 1
     }
 
-    private fun showNotification(mode: Mode) {
-        if (mode == Mode.Disabled) {
-            return
-        }
+    private fun hasNotificationPermission(): Boolean =
+        Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+            ActivityCompat.checkSelfPermission(
+                this, Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
 
-        val notificationBuilder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID).apply {
-            setSmallIcon(R.drawable.logo)
-            setContentTitle(getString(R.string.app_name))
-
-            when (mode) {
-                Mode.Enabled -> {
-                    setContentText(getString(R.string.enabled_notification))
-                }
-                else -> {
-                    setContentText(getString(R.string.disabled_notification))
-                }
-            }
-
-            fun createPendingIntent(action: Int): PendingIntent {
-                val intent = Intent(this@FloatingViewService, NotificationBroadcastReceiver::class.java)
-                intent.putExtra("action", action)
-                return PendingIntent.getBroadcast(
-                    this@FloatingViewService,
-                    action,
-                    intent,
-                    PendingIntent.FLAG_IMMUTABLE // Specify it as mutable
-                )
-            }
-            setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            setAutoCancel(false)
-
-            when (mode) {
-                Mode.Enabled -> {
-                    addAction(R.drawable.transparent, getString(R.string.hide), createPendingIntent(0))
-                }
-                Mode.Hidden -> {
-                    addAction(R.drawable.transparent, getString(R.string.show), createPendingIntent(0))
-                }
-                else -> Unit
-            }
-            addAction(R.drawable.transparent, getString(R.string.stop), createPendingIntent(1))
-
-            setContentIntent(createPendingIntent(2))
-        }
-
-
-
-        val notificationManager = NotificationManagerCompat.from(this)
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return
-        }
-        notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
-
+    private fun pendingBroadcast(action: Int): PendingIntent {
+        val intent = Intent(this, NotificationBroadcastReceiver::class.java)
+            .putExtra("action", action)
+        return PendingIntent.getBroadcast(
+            this, action, intent, PendingIntent.FLAG_IMMUTABLE
+        )
     }
 
+    private fun buildNotification(mode: Mode): Notification =
+        NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID).apply {
+            setSmallIcon(R.drawable.logo)
+            setContentTitle(getString(R.string.app_name))
+            setContentText(
+                getString(
+                    if (mode == Mode.Hidden) R.string.disabled_notification
+                    else R.string.enabled_notification
+                )
+            )
+            setPriority(NotificationCompat.PRIORITY_LOW)
+            setSilent(true)
+            setOngoing(true)
+            setShowWhen(false)
+            setAutoCancel(false)
+
+            addAction(
+                R.drawable.transparent,
+                getString(if (mode == Mode.Hidden) R.string.show else R.string.hide),
+                pendingBroadcast(0)
+            )
+            addAction(R.drawable.transparent, getString(R.string.stop), pendingBroadcast(1))
+            setContentIntent(pendingBroadcast(2))
+        }.build()
+
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // Make sure we are in the foreground within the OS deadline, no matter
+        // how the collectors below are scheduled.
+        if (!startedForeground) {
+            goForeground(if (modeFlow.value == Mode.Hidden) Mode.Hidden else Mode.Enabled)
+        }
+        return START_STICKY
+    }
 
     @SuppressLint("SetTextI18n")
     override fun onCreate() {
         super.onCreate()
+
+        goForeground(Mode.Enabled)
+
+        // Decide the starting mode *before* the collector below starts, so it
+        // never briefly sees Disabled and tears the service down on launch.
+        if (modeFlow.value == Mode.Disabled) modeFlow.value = Mode.Enabled
 
         params.x = prefLastX
         params.y = prefLastY
@@ -531,22 +548,18 @@ class FloatingViewService : Service() {
                     handleModeChange(it)
                 }
             }
-
-            launch {
-                modeFlow.emit(Mode.Enabled)
-            }
         }
     }
 
     override fun onBind(intent: Intent?) = null
 
     override fun onDestroy() {
-        scope.launch {
-            modeFlow.emit(Mode.Disabled)
-            handleModeChange(Mode.Disabled)
-            scope.cancel()
+        removeFloatingView()
+        runCatching {
+            ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
         }
-
+        modeFlow.value = Mode.Disabled
+        scope.cancel()
         super.onDestroy()
     }
 

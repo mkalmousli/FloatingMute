@@ -1,17 +1,10 @@
 package com.github.mkalmousli.floating_mute
 
 import android.app.Application
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
-import android.media.AudioManager
 import android.view.OrientationEventListener
-import android.widget.Toast
+import com.google.android.material.color.DynamicColors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -24,24 +17,21 @@ class App : Application() {
         object : OrientationEventListener(this) {
             override fun onOrientationChanged(ignored: Int) {
                 val newOrientation = orientation
-
                 if (newOrientation != lastOrientation) {
                     lastOrientation = newOrientation
-                    scope.launch {
-                        orientationFlow.emit(newOrientation)
-                    }
+                    scope.launch { orientationFlow.emit(newOrientation) }
                 }
             }
         }
     }
 
-
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
 
-        // Apply the saved UI theme before any activity is shown.
+        // Apply the saved UI theme + Material You colors before any activity shows.
         applyNightMode(prefAppTheme)
+        DynamicColors.applyToActivitiesIfAvailable(this)
 
         scope.apply {
 
@@ -69,11 +59,7 @@ class App : Application() {
                 }
             }
 
-
-            launch {
-                orientationListener.enable()
-            }
-
+            launch { orientationListener.enable() }
 
             launch {
                 positionFlow.collectLatest {
@@ -81,47 +67,10 @@ class App : Application() {
                     prefLastY = it.second
                 }
             }
-        }
 
-
-        scope.launch {
-            modeFlow.collectLatest {
-                if (it == Mode.Hidden) {
-                    Toast.makeText(this@App, "Floating view is hidden", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-
-
-
-
-        /**
-         * Listen for system's volume changes.
-         */
-        val systemVolumeFlow = callbackFlow {
-            val receiver = object : BroadcastReceiver() {
-                override fun onReceive(context: Context, intent: Intent) {
-                    when (intent.getIntExtra("android.media.EXTRA_VOLUME_STREAM_TYPE", 0)) {
-                        AudioManager.STREAM_MUSIC -> trySend(
-                            intent.getIntExtra(
-                                "android.media.EXTRA_VOLUME_STREAM_VALUE",
-                                0
-                            )
-                        )
-                    }
-                }
-            }
-
-            registerReceiver(receiver, IntentFilter("android.media.VOLUME_CHANGED_ACTION"))
-            awaitClose { unregisterReceiver(receiver) }
-        }
-
-        /**
-         * Update the volume flow when the system volume changes.
-         */
-        scope.launch {
-            systemVolumeFlow.collect {
-                volumeFlow.emit(it)
+            // Keep our volume mirror in sync with the system volume.
+            launch {
+                systemMusicVolumeFlow().collect { volumeFlow.emit(it) }
             }
         }
     }

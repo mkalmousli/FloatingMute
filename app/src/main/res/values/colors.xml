@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand seed: a calm indigo. -->
+    <color name="brand_primary_light">#4C5BD4</color>
+    <color name="brand_on_primary_light">#FFFFFF</color>
+    <color name="brand_primary_container_light">#DEE0FF</color>
+    <color name="brand_on_primary_container_light">#00105C</color>
+    <color name="brand_secondary_light">#5A5D72</color>
+    <color name="brand_secondary_container_light">#DFE1F9</color>
+    <color name="brand_on_secondary_container_light">#171B2C</color>
+
+    <color name="brand_primary_dark">#BCC2FF</color>
+    <color name="brand_on_primary_dark">#131C8B</color>
+    <color name="brand_primary_container_dark">#3138A6</color>
+    <color name="brand_on_primary_container_dark">#DEE0FF</color>
+    <color name="brand_secondary_dark">#C3C5DD</color>
+    <color name="brand_secondary_container_dark">#424659</color>
+    <color name="brand_on_secondary_container_dark">#DFE1F9</color>
+
+    <color name="mute_accent">#E5484D</color>
+</resources>

@@ -1,271 +1,155 @@
 package com.github.mkalmousli.floating_mute.fragments
 
 import android.content.Intent
-import android.icu.text.DateFormat
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.ScrollView
-import android.widget.Switch
-import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.core.view.updatePadding
-import androidx.core.view.updatePaddingRelative
 import androidx.core.widget.ImageViewCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.github.mkalmousli.floating_mute.BuildConfig
 import com.github.mkalmousli.floating_mute.FloatingViewService
+import com.github.mkalmousli.floating_mute.MATCH
 import com.github.mkalmousli.floating_mute.Mode
 import com.github.mkalmousli.floating_mute.R
-import com.github.mkalmousli.floating_mute.createGap
+import com.github.mkalmousli.floating_mute.WRAP
+import com.github.mkalmousli.floating_mute.bodyText
+import com.github.mkalmousli.floating_mute.card
+import com.github.mkalmousli.floating_mute.dp
+import com.github.mkalmousli.floating_mute.headline
+import com.github.mkalmousli.floating_mute.linLp
 import com.github.mkalmousli.floating_mute.modeFlow
+import com.github.mkalmousli.floating_mute.navRow
 import com.github.mkalmousli.floating_mute.prefShowPercentage
+import com.github.mkalmousli.floating_mute.screen
 import com.github.mkalmousli.floating_mute.showPercentageFlow
+import com.github.mkalmousli.floating_mute.titleText
+import com.google.android.material.materialswitch.MaterialSwitch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import android.os.Build;
-import com.github.mkalmousli.floating_mute.BuildConfig
-
 
 class HomeFragment : Fragment() {
 
-    private val layout by lazy {
-        val c = requireContext()
-
-        val contentView = LinearLayout(c).also { contentView ->
-            contentView.orientation = LinearLayout.VERTICAL
-            contentView.updatePadding(20, 20, 20, 20)
-
-
-            ImageView(c).apply {
-                val icon = R.drawable.logo
-                ImageViewCompat.setImageTintList(this, null)
-                setImageResource(icon)
-                layoutParams = ViewGroup.LayoutParams(200, 200)
-                contentView.addView(this)
-            }
-
-            TextView(c).apply {
-                text = getString(R.string.app_name)
-                textSize = 30f
-                contentView.addView(this)
-            }
-
-
-            LinearLayout(c).also { versionView ->
-                versionView.orientation = LinearLayout.HORIZONTAL
-
-                TextView(c).apply {
-                    text = buildString {
-                        append("v")
-                        append(BuildConfig.VERSION_NAME)
-                    }
-                    textSize = 20f
-                    updatePadding(right=20)
-                    versionView.addView(this)
-                }
-
-
-                TextView(c).apply {
-                    text = buildString {
-                        append(getString(R.string.released_on))
-                        append(" ")
-                        append(BuildConfig.RELEASE_DAY)
-                    }
-                    textSize = 10f
-                    alpha = 0.5f
-                    versionView.addView(this)
-                }
-
-                contentView.addView(versionView)
-            }
-
-
-
-            LinearLayout(c).also { builtOnView ->
-                builtOnView.orientation = LinearLayout.VERTICAL
-                builtOnView.updatePadding(top = 10)
-
-                TextView(c).apply {
-                    text = getString(R.string.built_on)
-                    textSize = 14f
-                    updatePadding(right=20)
-
-                    builtOnView.addView(this)
-                }
-
-
-                TextView(c).apply {
-                    text = BuildConfig.BUILD_TIME
-                    textSize = 8f
-                    alpha = 0.5f
-                    builtOnView.addView(this)
-                }
-
-                contentView.addView(builtOnView)
-            }
-
-
-
-
-
-            TextView(c).apply {
-                text = getString(R.string.app_desc)
-                textSize = 15f
-                updatePadding(top=40)
-                contentView.addView(this)
-            }
-
-            contentView.addView(
-                c.createGap(height = 100)
+    private fun open(fragment: Fragment) {
+        requireActivity().supportFragmentManager.beginTransaction()
+            .setCustomAnimations(
+                android.R.anim.fade_in, android.R.anim.fade_out,
+                android.R.anim.fade_in, android.R.anim.fade_out
             )
-
-            Button(c).apply {
-                text = getString(R.string.how_to_use)
-                textSize = 20f
-                layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-                updatePaddingRelative(start = 50, end = 50)
-
-                setOnClickListener {
-                    requireActivity().supportFragmentManager.beginTransaction()
-                        .replace(R.id.frameLayout, HowToUseFragment())
-                        .addToBackStack(null)
-                        .commit()
-                }
-
-                contentView.addView(this)
-            }
-
-            Button(c).apply {
-                text = getString(R.string.themes)
-                textSize = 20f
-                layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-                updatePaddingRelative(start = 50, end = 50)
-
-                setOnClickListener {
-                    requireActivity().supportFragmentManager.beginTransaction()
-                        .replace(R.id.frameLayout, ThemeFragment())
-                        .addToBackStack(null)
-                        .commit()
-                }
-
-                contentView.addView(this)
-            }
-
-            Button(c).apply {
-                text = getString(R.string.about)
-                textSize = 20f
-                layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-                updatePaddingRelative(start = 50, end = 50)
-
-                setOnClickListener {
-                    requireActivity().supportFragmentManager.beginTransaction()
-                        .replace(R.id.frameLayout, AboutFragment())
-                        .addToBackStack(null)
-                        .commit()
-                }
-
-                contentView.addView(this)
-            }
-
-
-
-            // create a switch to toggle the floating view
-            Switch(c).apply {
-                text = getString(R.string.enable_floating_mute)
-                textSize = 25f
-                isChecked = false
-                updatePadding(top=120)
-
-                contentView.addView(this)
-
-                lifecycleScope.launch {
-                    modeFlow.collectLatest  {
-                        isChecked = it == Mode.Enabled || it == Mode.Hidden
-                    }
-                }
-
-                setOnCheckedChangeListener { _, isChecked ->
-                    val intent = Intent(requireContext(), FloatingViewService::class.java)
-                    val currentMode = modeFlow.value
-
-                    if (isChecked && currentMode == Mode.Disabled) {
-                        requireContext().startService(intent)
-                    } else if (!isChecked && (currentMode == Mode.Enabled || currentMode == Mode.Hidden)) {
-                        requireContext().stopService(intent)
-                    }
-                }
-            }
-
-            TextView(c).apply {
-                textSize = 15f
-                updatePadding(top=30)
-                contentView.addView(this)
-
-
-                lifecycleScope.launch {
-                    modeFlow.collect {
-                        text = buildString {
-                            append(getString(R.string.status))
-                            append(": ")
-                            append(when (it) {
-                                Mode.Enabled -> getString(R.string.enabled)
-                                Mode.Disabled -> getString(R.string.disabled)
-                                Mode.Hidden -> getString(R.string.hidden)
-                            })
-                        }
-                    }
-                }
-            }
-
-
-
-
-
-            contentView.addView(
-                c.createGap(height = 100)
-            )
-
-            Switch(c).apply {
-                text = getString(R.string.show_volume_percentage)
-                textSize = 25f
-                isChecked = false
-
-                contentView.addView(this)
-
-                lifecycleScope.launch {
-                    showPercentageFlow.collectLatest  {
-                        isChecked = it
-                    }
-                }
-
-                setOnCheckedChangeListener { _, isChecked ->
-                    requireContext().prefShowPercentage = isChecked
-                    lifecycleScope.launch {
-                        showPercentageFlow.emit(isChecked)
-                    }
-                }
-            }
-
-        }
-
-
-        contentView.addView(
-            c.createGap(height = 100)
-        )
-
-        ScrollView(c).apply {
-            addView(contentView)
-        }
+            .replace(R.id.frameLayout, fragment)
+            .addToBackStack(null)
+            .commit()
     }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View = layout
+    ): View {
+        val c = requireContext()
 
+        return c.screen {
+
+            addView(c.headline(getString(R.string.app_name)).apply {
+                layoutParams = linLp(MATCH, WRAP, dp(4))
+            })
+            addView(c.bodyText(getString(R.string.app_desc)).apply {
+                layoutParams = linLp(MATCH, WRAP, dp(4))
+            })
+
+            // --- Enable card ---
+            addView(c.card {
+                val enableSwitch = MaterialSwitch(c).apply {
+                    text = getString(R.string.enable_floating_mute)
+                    textSize = 18f
+                    layoutParams = linLp(MATCH, WRAP)
+                }
+                val statusText = c.bodyText("").apply {
+                    layoutParams = linLp(MATCH, WRAP, dp(6))
+                }
+                addView(enableSwitch)
+                addView(statusText)
+
+                lifecycleScope.launch {
+                    modeFlow.collectLatest { mode ->
+                        val running = mode == Mode.Enabled || mode == Mode.Hidden
+                        if (enableSwitch.isChecked != running) enableSwitch.isChecked = running
+                        statusText.text = getString(
+                            R.string.status_line,
+                            getString(
+                                when (mode) {
+                                    Mode.Enabled -> R.string.enabled
+                                    Mode.Disabled -> R.string.disabled
+                                    Mode.Hidden -> R.string.hidden
+                                }
+                            )
+                        )
+                    }
+                }
+
+                enableSwitch.setOnClickListener {
+                    val intent = Intent(c, FloatingViewService::class.java)
+                    if (enableSwitch.isChecked && modeFlow.value == Mode.Disabled) {
+                        ContextCompat.startForegroundService(c, intent)
+                    } else if (!enableSwitch.isChecked && modeFlow.value != Mode.Disabled) {
+                        c.stopService(intent)
+                    }
+                }
+            })
+
+            // --- Quick settings ---
+            addView(c.card {
+                addView(c.titleText(getString(R.string.quick_settings)))
+                val pctSwitch = MaterialSwitch(c).apply {
+                    text = getString(R.string.show_volume_percentage)
+                    textSize = 16f
+                    layoutParams = linLp(MATCH, WRAP, dp(12))
+                }
+                addView(pctSwitch)
+                lifecycleScope.launch {
+                    showPercentageFlow.collectLatest {
+                        if (pctSwitch.isChecked != it) pctSwitch.isChecked = it
+                    }
+                }
+                pctSwitch.setOnClickListener {
+                    val on = pctSwitch.isChecked
+                    c.prefShowPercentage = on
+                    lifecycleScope.launch { showPercentageFlow.emit(on) }
+                }
+            })
+
+            // --- Navigation ---
+            addView(c.navRow(getString(R.string.themes), getString(R.string.themes_subtitle)) {
+                open(ThemeFragment())
+            })
+            addView(c.navRow(getString(R.string.how_to_use), null) { open(HowToUseFragment()) })
+            addView(c.navRow(getString(R.string.about), null) { open(AboutFragment()) })
+
+            // --- Version footer ---
+            addView(c.bodyText(
+                getString(R.string.version_footer, BuildConfig.VERSION_NAME, BuildConfig.RELEASE_DAY)
+            ).apply {
+                layoutParams = linLp(MATCH, WRAP, dp(24))
+                gravity = Gravity.CENTER_HORIZONTAL
+                alpha = 0.7f
+            })
+
+            // small brand mark
+            addView(ImageView(c).apply {
+                ImageViewCompat.setImageTintList(this, null)
+                setImageResource(R.drawable.logo)
+                layoutParams = LinearLayout.LayoutParams(dp(40), dp(40)).apply {
+                    topMargin = dp(8)
+                    gravity = Gravity.CENTER_HORIZONTAL
+                }
+                updatePadding(0, 0, 0, 0)
+            })
+        }
+    }
 }

@@ -1,117 +1,96 @@
 package com.github.mkalmousli.floating_mute
+
 import android.Manifest
-import android.content.Context
 import android.content.Intent
-import android.os.Build
-import android.provider.Settings
-import android.app.Activity
 import android.net.Uri
-import android.content.IntentFilter
-import android.content.pm.PackageManager
-import android.media.AudioManager
+import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
+import android.provider.Settings
 import android.widget.FrameLayout
-import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
 import com.github.mkalmousli.floating_mute.fragments.HomeFragment
 
 class MainActivity : AppCompatActivity() {
 
-    private fun askForBatteryOptimizationPermission(context: Context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val pm = context.getSystemService(Context.POWER_SERVICE) as android.os.PowerManager
-            val packageName = context.packageName
-            val isIgnoringBatteryOptimizations = pm.isIgnoringBatteryOptimizations(packageName)
+    private val requestNotifications =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
 
-            if (!isIgnoringBatteryOptimizations) {
-                Toast.makeText(context, getString(R.string.battery_optimizations), Toast.LENGTH_SHORT).show()
-
-                val intent = Intent()
-                intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-                intent.data = Uri.parse("package:$packageName")
-                (context as Activity).startActivityForResult(intent, 123) // You can change the request code
-            }
+    private val requestOverlay =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            maybeStartService()
         }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        supportActionBar?.hide()
+        WindowCompat.setDecorFitsSystemWindows(window, true)
 
-        askForBatteryOptimizationPermission(this)
+        val container = FrameLayout(this).apply { id = R.id.frameLayout }
+        setContentView(container)
 
-
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                    1
-                )
-            } else {
-                Toast.makeText(
-                    this,
-                    getString(R.string.notification_permission),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-
-
-
-
-        FrameLayout(baseContext).apply {
-            id = R.id.frameLayout
-            setContentView(this)
-
+        if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
                 .replace(R.id.frameLayout, HomeFragment())
                 .commit()
         }
 
+        askNotificationPermission()
+        askIgnoreBatteryOptimizations()
 
+        if (hasOverlayPermission()) {
+            maybeStartService()
+        } else {
+            ensureOverlayPermission()
+        }
+    }
 
-//        // TODO(mkalmousli): Listen for approval and return the user to the app automatically
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+    private fun askNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
+            android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) {
+            requestNotifications.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
 
-            if (!Settings.canDrawOverlays(this)) {
-                Toast.makeText(this, getString(R.string.overlay_permission), Toast.LENGTH_SHORT).show()
+    private fun askIgnoreBatteryOptimizations() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return
+        val pm = getSystemService(PowerManager::class.java) ?: return
+        if (pm.isIgnoringBatteryOptimizations(packageName)) return
+        runCatching {
+            startActivity(
+                Intent(
+                    Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+                    Uri.parse("package:$packageName")
+                )
+            )
+        }
+    }
 
-                // If not, request the permission
-                val intent = Intent(
+    private fun hasOverlayPermission(): Boolean =
+        Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(this)
+
+    private fun ensureOverlayPermission() {
+        if (hasOverlayPermission()) return
+        runCatching {
+            requestOverlay.launch(
+                Intent(
                     Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                     Uri.parse("package:$packageName")
                 )
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                startActivity(intent)
-                return
-            }
+            )
         }
-
-        val intent = Intent(this, FloatingViewService::class.java)
-        startService(intent)
     }
 
-
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    }
-
-
-
-    override fun onStart() {
-        super.onStart()
-        val filter = IntentFilter()
-        filter.addAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
+    /** Start the floating button only once we are actually allowed to draw it. */
+    private fun maybeStartService() {
+        if (!hasOverlayPermission()) return
+        if (modeFlow.value != Mode.Disabled) return
+        ContextCompat.startForegroundService(
+            this, Intent(this, FloatingViewService::class.java)
+        )
     }
 }
