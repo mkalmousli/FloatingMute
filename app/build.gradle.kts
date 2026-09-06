@@ -1,9 +1,21 @@
-import java.util.Date
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
 }
+
+// Release signing. Credentials come from the environment (preferred) or a
+// git-ignored `key.properties`. When neither is present — e.g. on the F-Droid
+// build server — the release APK is left unsigned, which is exactly what
+// F-Droid's reproducible build wants: it signs and byte-compares against the
+// published binary itself.
+val keystoreProperties = Properties()
+rootProject.file("key.properties").let { f ->
+    if (f.exists()) f.inputStream().use { keystoreProperties.load(it) }
+}
+fun signingValue(env: String, prop: String): String? =
+    System.getenv(env) ?: keystoreProperties.getProperty(prop)
 
 android {
     namespace = "com.github.mkalmousli.floating_mute"
@@ -27,8 +39,26 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            val store = signingValue("MKALMOUSLI_SIGN_STORE", "storeFile")
+            val storePass = signingValue("MKALMOUSLI_SIGN_PASS", "storePassword")
+            val alias = signingValue("MKALMOUSLI_SIGN_ALIAS", "keyAlias")
+            if (store != null && storePass != null && alias != null) {
+                storeFile = file(store)
+                storePassword = storePass
+                keyAlias = alias
+                keyPassword = signingValue("MKALMOUSLI_SIGN_KEY_PASS", "keyPassword") ?: storePass
+            }
+        }
+    }
+
     buildTypes {
         release {
+            // Only sign when credentials were supplied; F-Droid builds unsigned.
+            if (signingConfigs.getByName("release").storeFile != null) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }

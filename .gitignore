@@ -15,3 +15,5 @@
 local.properties
 
 app/release
+# Release signing (developer-only)
+/key.properties
