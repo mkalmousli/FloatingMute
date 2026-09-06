@@ -43,19 +43,21 @@ There might be other sources where you can get the app, but note that they are N
 - Mute/Unmute your device with a single tap.
 - When unmuting it restores the volume as it was before unmuting.
 - Can be placed anywhere on the screen by simply dragging it.
-- You can hide it by long pressing it, and tap on the notification to make it appear again.
-- It saves the position of the button on the screen for each orientations, portrait and landscape.
+- Hide it by dragging it to the bottom edge of the screen, like chat bubbles. Tap the notification to bring it back.
+- **Themes:** customise the button's size, colours, opacity and corner radius, and pick a Light / Dark / System app theme.
+- It saves the position of the button on the screen for each orientation, portrait and landscape.
 - Automatically adjusts itself as you change the volume.
-- Shows the percentage in beside the floating button.
+- Shows the volume percentage beside the floating button.
 
 
 ## Usage
 - Tap the floating button to mute or unmute.
-- Drag it to move it.
-- Long press to hide it.
+- Hold briefly, then drag to move it.
+- Drag it to the bottom edge of the screen to hide it.
+- Long press it to show or hide the volume percentage.
 - The notification allows you to hide and show it at any time.
-- You can also quit the app by tapping on 'exit' in the notification.
-- Tap on the notification to open the app so you can change the settings.
+- You can also quit the app by tapping on 'Stop' in the notification.
+- Tap on the notification to open the app so you can change the settings and themes.
 
 ## Screenshots
 

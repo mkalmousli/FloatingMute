@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class App : Application() {
-    private val scope = CoroutineScope(Dispatchers.Main)
+    private val scope = CoroutineScope(Dispatchers.Main.immediate)
 
     private val orientationListener by lazy {
         var lastOrientation: Orientation? = null
@@ -40,12 +40,27 @@ class App : Application() {
         super.onCreate()
         createNotificationChannel()
 
-
+        // Apply the saved UI theme before any activity is shown.
+        applyNightMode(prefAppTheme)
 
         scope.apply {
 
             launch {
+                appThemeFlow.emit(prefAppTheme)
+                appThemeFlow.collectLatest {
+                    prefAppTheme = it
+                    applyNightMode(it)
+                }
+            }
+
+            launch {
+                appearanceFlow.emit(loadAppearance())
+                appearanceFlow.collectLatest { saveAppearance(it) }
+            }
+
+            launch {
                 showPercentageFlow.emit(prefShowPercentage)
+                showPercentageFlow.collectLatest { prefShowPercentage = it }
             }
 
             launch {

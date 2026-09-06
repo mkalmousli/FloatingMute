@@ -30,5 +30,22 @@
     <string name="notification_permission">Please grant the notification permission!</string>
     <string name="overlay_permission">Please grant the overlay permission!</string>
     <string name="failed_to_open_url">Failed to open URL</string>
-    <string name="instructions">Tap the floating button to mute or unmute.\nDrag it to move it.\nLong press to hide the it.\nThe notification allows you to hide and show it at any time.\nYou can also quit the app by tapping on \'exit\' in the notification.\nTap on the notification to open the app so you can change the settings.</string>
+    <string name="instructions">Tap the floating button to mute or unmute.\nHold briefly, then drag to move it.\nDrag it to the bottom edge of the screen to hide it (like chat bubbles).\nLong press it to show or hide the volume percentage.\nThe notification allows you to hide and show it at any time.\nYou can also quit the app by tapping on \'Stop\' in the notification.\nTap on the notification to open the app so you can change the settings.</string>
+
+    <!-- Themes -->
+    <string name="themes">Themes</string>
+    <string name="website">Website</string>
+    <string name="app_theme">App theme</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="button_size">Button size</string>
+    <string name="opacity">Opacity</string>
+    <string name="corner_radius">Corner radius</string>
+    <string name="move_sensitivity">Hold before move</string>
+    <string name="button_background">Button background</string>
+    <string name="icon_color">Icon color</string>
+    <string name="percentage_background">Percentage background</string>
+    <string name="percentage_text">Percentage text</string>
+    <string name="reset_to_defaults">Reset to defaults</string>
 </resources>

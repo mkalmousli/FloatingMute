@@ -130,14 +130,14 @@ class AboutFragment : Fragment() {
                 socialsView.updatePadding(top = 20)
 
                 Button(c).apply {
-                    text = "GitHub"
+                    text = getString(R.string.website)
                     textSize = 20f
                     layoutParams = ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT
                     )
                     setOnClickListener {
-                        requireContext().openUrl("https://github.com/mkalmousli")
+                        requireContext().openUrl("https://al-mo.de")
                     }
                     socialsView.addView(this)
                 }

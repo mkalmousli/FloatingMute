@@ -22,6 +22,7 @@ import com.github.mkalmousli.floating_mute.Mode
 import com.github.mkalmousli.floating_mute.R
 import com.github.mkalmousli.floating_mute.createGap
 import com.github.mkalmousli.floating_mute.modeFlow
+import com.github.mkalmousli.floating_mute.prefShowPercentage
 import com.github.mkalmousli.floating_mute.showPercentageFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -139,6 +140,22 @@ class HomeFragment : Fragment() {
             }
 
             Button(c).apply {
+                text = getString(R.string.themes)
+                textSize = 20f
+                layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                updatePaddingRelative(start = 50, end = 50)
+
+                setOnClickListener {
+                    requireActivity().supportFragmentManager.beginTransaction()
+                        .replace(R.id.frameLayout, ThemeFragment())
+                        .addToBackStack(null)
+                        .commit()
+                }
+
+                contentView.addView(this)
+            }
+
+            Button(c).apply {
                 text = getString(R.string.about)
                 textSize = 20f
                 layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
@@ -226,6 +243,7 @@ class HomeFragment : Fragment() {
                 }
 
                 setOnCheckedChangeListener { _, isChecked ->
+                    requireContext().prefShowPercentage = isChecked
                     lifecycleScope.launch {
                         showPercentageFlow.emit(isChecked)
                     }

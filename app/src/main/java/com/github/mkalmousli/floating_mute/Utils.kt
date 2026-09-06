@@ -15,6 +15,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
@@ -22,6 +23,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import kotlin.math.roundToInt
 
 val Context.sharedPrefs: SharedPreferences
     get() =
@@ -44,6 +46,14 @@ fun SharedPreferences.setInt(name: String, value: Int) =
 
 fun SharedPreferences.setBoolean(name: String, value: Boolean) =
     edit().putBoolean(name, value).apply()
+
+fun SharedPreferences.setString(name: String, value: String) =
+    edit().putString(name, value).apply()
+
+
+/** Convert a dp value to pixels for the current display. */
+fun Context.dp(value: Int): Int =
+    (value * resources.displayMetrics.density).roundToInt()
 
 
 private val Context.prefLastXName get() =
@@ -69,6 +79,84 @@ private val prefShowPercentageName get() =
 var Context.prefShowPercentage
     get() = sharedPrefs.getBoolean(prefShowPercentageName, true)
     set(v) = sharedPrefs.setBoolean(prefShowPercentageName, v)
+
+
+
+
+/* ----------------------------- Appearance / theme ----------------------------- */
+
+private val DEF = Appearance.DEFAULT
+
+var Context.prefAppTheme: AppTheme
+    get() = runCatching {
+        AppTheme.valueOf(sharedPrefs.getString("app_theme", null) ?: AppTheme.System.name)
+    }.getOrDefault(AppTheme.System)
+    set(v) = sharedPrefs.setString("app_theme", v.name)
+
+var Context.prefButtonSize
+    get() = sharedPrefs.getInt("btn_size", DEF.buttonSize)
+    set(v) = sharedPrefs.setInt("btn_size", v)
+
+var Context.prefButtonBackgroundColor
+    get() = sharedPrefs.getInt("btn_bg", DEF.backgroundColor)
+    set(v) = sharedPrefs.setInt("btn_bg", v)
+
+var Context.prefButtonIconColor
+    get() = sharedPrefs.getInt("btn_icon", DEF.iconColor)
+    set(v) = sharedPrefs.setInt("btn_icon", v)
+
+var Context.prefButtonOpacity
+    get() = sharedPrefs.getInt("btn_opacity", DEF.opacity)
+    set(v) = sharedPrefs.setInt("btn_opacity", v)
+
+var Context.prefButtonCornerRadius
+    get() = sharedPrefs.getInt("btn_corner", DEF.cornerRadius)
+    set(v) = sharedPrefs.setInt("btn_corner", v)
+
+var Context.prefPercentageBackgroundColor
+    get() = sharedPrefs.getInt("pct_bg", DEF.percentageBackgroundColor)
+    set(v) = sharedPrefs.setInt("pct_bg", v)
+
+var Context.prefPercentageTextColor
+    get() = sharedPrefs.getInt("pct_text", DEF.percentageTextColor)
+    set(v) = sharedPrefs.setInt("pct_text", v)
+
+var Context.prefMoveDelayMs
+    get() = sharedPrefs.getInt("move_delay", DEF.moveDelayMs)
+    set(v) = sharedPrefs.setInt("move_delay", v)
+
+
+fun Context.loadAppearance() = Appearance(
+    buttonSize = prefButtonSize,
+    backgroundColor = prefButtonBackgroundColor,
+    iconColor = prefButtonIconColor,
+    opacity = prefButtonOpacity,
+    cornerRadius = prefButtonCornerRadius,
+    percentageBackgroundColor = prefPercentageBackgroundColor,
+    percentageTextColor = prefPercentageTextColor,
+    moveDelayMs = prefMoveDelayMs,
+)
+
+fun Context.saveAppearance(a: Appearance) {
+    prefButtonSize = a.buttonSize
+    prefButtonBackgroundColor = a.backgroundColor
+    prefButtonIconColor = a.iconColor
+    prefButtonOpacity = a.opacity
+    prefButtonCornerRadius = a.cornerRadius
+    prefPercentageBackgroundColor = a.percentageBackgroundColor
+    prefPercentageTextColor = a.percentageTextColor
+    prefMoveDelayMs = a.moveDelayMs
+}
+
+fun applyNightMode(theme: AppTheme) {
+    AppCompatDelegate.setDefaultNightMode(
+        when (theme) {
+            AppTheme.System -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+            AppTheme.Light -> AppCompatDelegate.MODE_NIGHT_NO
+            AppTheme.Dark -> AppCompatDelegate.MODE_NIGHT_YES
+        }
+    )
+}
 
 
 

@@ -16,14 +16,14 @@ android {
         applicationId = "com.github.mkalmousli.floating_mute"
         minSdk = 21
         targetSdk = 34
-        versionCode = 3
-        versionName = "3.0.0"
+        versionCode = 4
+        versionName = "4.0.0"
 
         defaultConfig {
             // BUILD_TIME is not constant, so here we type it fixed:
             // Next version will remove this info for the F-Droid.
-            buildConfigField( "String", "BUILD_TIME", "\"Mon May 19 18:43:35 UTC 2025\"")
-            buildConfigField( "String", "RELEASE_DAY", "\"2025/05/18\"")
+            buildConfigField( "String", "BUILD_TIME", "\"Sat Sep 06 12:00:00 UTC 2026\"")
+            buildConfigField( "String", "RELEASE_DAY", "\"2026/09/06\"")
         }
     }
 

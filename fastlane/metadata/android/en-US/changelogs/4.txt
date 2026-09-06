@@ -1,0 +1,7 @@
+- New "Themes" screen: customise the floating button's size, colours, opacity and corner radius, with a live preview.
+- App theme can now follow the system or be forced to Light / Dark.
+- Hide the button by dragging it to the bottom edge of the screen (like chat bubbles) instead of long-pressing.
+- Long-press now toggles the volume-percentage label.
+- A short hold is required before a drag starts, so quick mute/unmute taps are no longer swallowed by movement.
+- Fixed settings being reset and the button failing to hide when using the notification.
+- Smoother dragging: the position is no longer written to storage on every frame.

@@ -7,17 +7,21 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.graphics.PixelFormat
+import android.graphics.drawable.GradientDrawable
 import android.media.AudioManager
 import android.os.Build
 import android.app.PendingIntent
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewConfiguration
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.widget.ImageViewCompat
 import com.github.mkalmousli.floating_mute.databinding.FloatingViewBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -81,7 +85,11 @@ class FloatingViewService : Service() {
         getSystemService(Context.AUDIO_SERVICE) as AudioManager
     }
 
-    private val scope = CoroutineScope(Dispatchers.Main)
+    private val scope = CoroutineScope(Dispatchers.Main.immediate)
+
+    private var viewAdded = false
+
+    private val longPressMs = 600L
 
     private val maxVolumeFlow by lazy {
         audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
@@ -122,50 +130,108 @@ class FloatingViewService : Service() {
 
 
     /**
-     * Update the x and y position of the view and save it to SharedPreferences.
+     * Move the view to (x, y) without touching SharedPreferences.
+     * Persisting on every animation frame was a major source of jank and
+     * made the button feel "too sensitive" while dragging.
      */
-    private fun updateViewPos(params: LayoutParams, x: Int, y: Int) {
+    private fun moveViewTo(x: Int, y: Int) {
         params.x = x
         params.y = y
-        windowManager.updateViewLayout(binds.root, params)
-        prefLastX = x
-        prefLastY = y
+        if (viewAdded) {
+            try {
+                windowManager.updateViewLayout(binds.root, params)
+            } catch (ignored: Exception) {
+            }
+        }
+    }
+
+    /** Persist the current position (call once, when a drag ends). */
+    private fun persistViewPos() {
+        prefLastX = params.x
+        prefLastY = params.y
+        scope.launch { positionFlow.emit(Pair(params.x, params.y)) }
     }
 
 
+    private var currentAppearance = Appearance.DEFAULT
 
+    /** Apply the user's theme choices to the floating button. */
+    private fun applyAppearance(a: Appearance) {
+        currentAppearance = a
+
+        val sizePx = dp(a.buttonSize)
+        binds.icon.layoutParams = binds.icon.layoutParams.apply {
+            width = sizePx
+            height = sizePx
+        }
+        ImageViewCompat.setImageTintList(binds.icon, ColorStateList.valueOf(a.iconColor))
+
+        binds.root.background = GradientDrawable().apply {
+            setColor(a.backgroundColor)
+            cornerRadius = dp(a.cornerRadius).toFloat()
+        }
+        binds.root.alpha = (a.opacity.coerceIn(Appearance.MIN_OPACITY, 100)) / 100f
+
+        binds.percentage.setBackgroundColor(a.percentageBackgroundColor)
+        binds.percentage.setTextColor(a.percentageTextColor)
+
+        if (viewAdded) {
+            try {
+                windowManager.updateViewLayout(binds.root, params)
+            } catch (ignored: Exception) {
+            }
+        }
+    }
+
+
+    private val touchSlop by lazy { ViewConfiguration.get(this).scaledTouchSlop }
+
+    private val screenHeight get() = resources.displayMetrics.heightPixels
 
     private var holdJob: Job? = null
     private var lastDown: Long = 0L
     private var isDragging = false
+    private var longPressConsumed = false
+    private var inHideZone = false
+
+    /** The finger is close enough to the bottom edge to drop-to-hide. */
+    private fun isInHideZone(rawY: Float): Boolean =
+        rawY >= screenHeight - dp(96)
 
     /**
-     * Move the view when the user drag it.
+     * Handle taps, long-press and dragging of the floating button.
+     *
+     * - short tap  -> mute / unmute
+     * - long press -> toggle the volume-percentage label
+     * - drag       -> move the button (only after [Appearance.moveDelayMs])
+     * - drag to the bottom edge and release -> hide (like chat bubbles)
      */
     @SuppressLint("ClickableViewAccessibility")
     private fun handleViewMoving() {
-        var initialX = prefLastX
-        var initialY = prefLastY
+        var initialX = 0
+        var initialY = 0
         var initialTouchX = 0f
         var initialTouchY = 0f
 
-        binds.root.setOnTouchListener { v, event ->
-            val action = event.action
-
-            when (action) {
+        binds.root.setOnTouchListener { _, event ->
+            when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     lastDown = System.currentTimeMillis()
                     isDragging = false
+                    longPressConsumed = false
+                    inHideZone = false
 
                     initialX = params.x
                     initialY = params.y
                     initialTouchX = event.rawX
                     initialTouchY = event.rawY
 
+                    holdJob?.cancel()
                     holdJob = scope.launch {
-                        delay(600)
+                        delay(longPressMs)
                         if (!isDragging) {
-                            modeFlow.emit(Mode.Hidden)
+                            longPressConsumed = true
+                            togglePercentage()
                         }
                     }
                 }
@@ -173,41 +239,63 @@ class FloatingViewService : Service() {
                 MotionEvent.ACTION_MOVE -> {
                     val dx = event.rawX - initialTouchX
                     val dy = event.rawY - initialTouchY
+                    val movedFar = (dx * dx + dy * dy) > touchSlop * touchSlop
+                    val heldLongEnough =
+                        System.currentTimeMillis() - lastDown >= currentAppearance.moveDelayMs
 
-                    if (!isDragging && (dx * dx + dy * dy) > 16) { // Small threshold to detect real movement
+                    if (!isDragging && !longPressConsumed && movedFar && heldLongEnough) {
                         isDragging = true
+                        holdJob?.cancel()
                     }
 
-                    holdJob?.cancel()
-
                     if (isDragging) {
-                        val newX = initialX + dx.toInt()
-                        val newY = initialY + dy.toInt()
-                        scope.launch {
-                            positionFlow.emit(Pair(newX, newY))
+                        moveViewTo(initialX + dx.toInt(), initialY + dy.toInt())
+
+                        val nowInZone = isInHideZone(event.rawY)
+                        if (nowInZone != inHideZone) {
+                            inHideZone = nowInZone
+                            binds.root.alpha = if (nowInZone) {
+                                0.35f
+                            } else {
+                                currentAppearance.opacity / 100f
+                            }
                         }
                     }
                 }
 
                 MotionEvent.ACTION_UP -> {
                     holdJob?.cancel()
-                    val currentTime = System.currentTimeMillis()
-                    val diff = currentTime - lastDown
+                    val diff = System.currentTimeMillis() - lastDown
 
-                    if (!isDragging && diff <= 200) { // Increased to 200ms for better user experience
-                        toggleVolume()
+                    when {
+                        isDragging && inHideZone -> {
+                            binds.root.alpha = currentAppearance.opacity / 100f
+                            scope.launch { modeFlow.emit(Mode.Hidden) }
+                        }
+                        isDragging -> persistViewPos()
+                        !longPressConsumed && diff < longPressMs -> toggleVolume()
                     }
                     isDragging = false
+                    inHideZone = false
                 }
 
                 MotionEvent.ACTION_CANCEL -> {
                     holdJob?.cancel()
                     lastDown = 0L
                     isDragging = false
+                    inHideZone = false
+                    binds.root.alpha = currentAppearance.opacity / 100f
                 }
             }
             true
         }
+    }
+
+    /** Toggle the volume-percentage label and remember the choice. */
+    private fun togglePercentage() {
+        val next = !showPercentageFlow.value
+        prefShowPercentage = next
+        scope.launch { showPercentageFlow.emit(next) }
     }
 
     /**
@@ -275,35 +363,44 @@ class FloatingViewService : Service() {
 
 
 
-    private fun handleModeChange(mode: Mode) {
+    private fun addFloatingView() {
+        if (viewAdded) return
+        // Restore the saved position (e.g. after being hidden via drag-to-bottom).
+        params.x = prefLastX
+        params.y = prefLastY
+        binds.root.alpha = currentAppearance.opacity / 100f
+        try {
+            windowManager.addView(binds.root, params)
+            viewAdded = true
+        } catch (ignored: Exception) {
+        }
+    }
 
+    private fun removeFloatingView() {
+        if (!viewAdded) return
+        try {
+            windowManager.removeView(binds.root)
+        } catch (ignored: Exception) {
+        }
+        viewAdded = false
+    }
+
+    private fun handleModeChange(mode: Mode) {
         when (mode) {
             Mode.Enabled -> {
                 showNotification(mode)
-
-                windowManager.addView(binds.root, params)
-                handleViewMoving()
+                addFloatingView()
             }
 
-
             Mode.Disabled -> {
-                //TODO: Avoid try-catch
-                try {
-                    windowManager.removeView(binds.root)
-                }catch (ignored: Exception) {
-                }
-                // remove notification
-                val notificationManager = NotificationManagerCompat.from(this)
-                notificationManager.cancel(NOTIFICATION_ID)
-
-                // kill service
+                removeFloatingView()
+                NotificationManagerCompat.from(this).cancel(NOTIFICATION_ID)
                 stopSelf()
             }
 
-
             Mode.Hidden -> {
                 showNotification(mode)
-                windowManager.removeView(binds.root)
+                removeFloatingView()
             }
         }
     }
@@ -385,6 +482,11 @@ class FloatingViewService : Service() {
     override fun onCreate() {
         super.onCreate()
 
+        params.x = prefLastX
+        params.y = prefLastY
+        applyAppearance(loadAppearance())
+        handleViewMoving()
+
         scope.apply {
 
             launch {
@@ -394,10 +496,12 @@ class FloatingViewService : Service() {
             }
 
             launch {
+                appearanceFlow.collectLatest { applyAppearance(it) }
+            }
+
+            launch {
                 positionFlow.collectLatest {
-                    try {
-                        updateViewPos(params, it.first, it.second)
-                    }catch (ignored: Exception) {}
+                    if (!isDragging) moveViewTo(it.first, it.second)
                 }
             }
 
