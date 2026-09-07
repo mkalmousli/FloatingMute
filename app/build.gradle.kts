@@ -56,6 +56,15 @@ android {
     }
 }
 
+// Prevent AGP from embedding Git VCS info (META-INF/version-control-info.textproto)
+// in the APK; that revision hash breaks F-Droid's reproducible builds.
+// See: https://github.com/mkalmousli/FloatingMute/issues/9
+tasks.configureEach {
+    if (name.startsWith("extract") && name.contains("VersionControlInfo")) {
+        enabled = false
+    }
+}
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
