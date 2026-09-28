@@ -1,0 +1,3 @@
+- Trimmed changelogs so they don't get cut off on IzzyOnDroid / F-Droid listings.
+- Added the IzzyOnDroid badge to the README.
+- No functional app changes in this release.

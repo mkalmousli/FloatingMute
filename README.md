@@ -35,6 +35,10 @@ Floating Mute is also published on these platforms, updates tend to appear there
 
 - [IzzyOnDroid](https://apt.izzysoft.de/fdroid/index/apk/com.github.mkalmousli.floating_mute)
 
+  <a href="https://apt.izzysoft.de/fdroid/index/apk/com.github.mkalmousli.floating_mute">
+      <img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" width="150px"/>
+  </a>
+
 
 There might be other sources where you can get the app, but note that they are NOT RECOMMENDED as they might have changed the code!
 

@@ -1,9 +1,9 @@
 - Fixed a crash on launch on Android 14+.
-- The floating button now runs as a foreground service, so Android stops killing it in the background.
-- Brand-new Material 3 interface with Material You colours and instant Light / Dark / System theme switching.
-- New Themes screen: button size, colours (transparent too), opacity and corners, with a live preview.
-- Hide the button by dragging it to the bottom edge of the screen, like chat bubbles.
-- Long-press toggles the volume percentage; a short hold is needed before dragging, so quick taps aren't lost.
-- Fixed settings being reset / the button not hiding from the notification.
+- Foreground service so Android stops killing the floating button in the background.
+- Brand-new Material 3 interface with Material You colours and theme switching.
+- New Themes screen: size, colours, opacity and corners, with a live preview.
+- Hide the button by dragging it to the bottom edge, like chat bubbles.
+- Long-press toggles volume percentage.
+- Fixed settings being reset / button not hiding.
 
-Thanks to MicroL (https://ko-fi.com/L3L5SVSOX) for supporting the app.
+Thanks to MicroL for supporting the app.
