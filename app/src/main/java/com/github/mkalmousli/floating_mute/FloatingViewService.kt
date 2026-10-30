@@ -381,8 +381,13 @@ class FloatingViewService : Service() {
     private fun addFloatingView() {
         if (viewAdded) return
         // Restore the saved position (e.g. after being hidden via drag-to-bottom).
-        params.x = prefLastX
-        params.y = prefLastY
+        // A saved position can be off-screen after a rotation or a display
+        // change, so keep the button inside the visible area.
+        val size = dp(currentAppearance.buttonSize)
+        val maxX = (resources.displayMetrics.widthPixels - size).coerceAtLeast(0)
+        val maxY = (screenHeight - size).coerceAtLeast(0)
+        params.x = prefLastX.coerceIn(0, maxX)
+        params.y = prefLastY.coerceIn(0, maxY)
         binds.root.alpha = currentAppearance.opacity / 100f
         try {
             windowManager.addView(binds.root, params)

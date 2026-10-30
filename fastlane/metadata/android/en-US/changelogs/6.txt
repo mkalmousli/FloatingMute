@@ -1,0 +1,6 @@
+- New screenshots and a clearer description.
+- The notification now opens the app reliably on Android 12 and newer.
+- Fixed a rare case where the button could be drawn off-screen after a rotation.
+- Floating button restores to a visible position when the screen changes.
+- Removed an unused permission.
+- Updated AndroidX and Material libraries.

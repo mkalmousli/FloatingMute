@@ -1,19 +1,27 @@
-Floating Mute is a convenient app that lets you quickly mute videos with a single tap. 
-Whether you're watching a YouTube short, a Reel, or any other video, Floating Mute gives you instant control over the audio.
+Floating Mute puts a small, movable mute button on top of every app. Watching YouTube Shorts, Reels, TikTok or any video where you want to silence the sound instantly? One tap does it, another tap brings the sound back.
 
 <b>Features</b>
-- Mute/Unmute your device with a single tap.
-- When unmuting it restores the volume as it was before unmuting.
-- Can be placed anywhere on the screen by simply dragging it.
-- You can hide it by long pressing it, and tap on the notification to make it appear again.
-- It saves the position of the button on the screen for each orientations, portrait and landscape.
-- Automatically adjusts itself as you change the volume.
-- Shows the percentage in beside the floating button.
+- One-tap mute and unmute of your media volume.
+- Unmuting restores the exact volume you had before.
+- The button icon follows the current volume level (off, 25%, 50%, 75%, max).
+- Optional volume percentage label next to the button.
+- Drag it anywhere on the screen. Its position is remembered separately for portrait and landscape.
+- Drag it to the bottom edge to tuck it away, like a chat bubble. Bring it back from the notification.
+- Customise the button: size, background and icon colours, opacity, corner radius, and label colours.
+- Light, Dark or System app theme, with Material You colours on Android 12 and newer.
+- Works on old phones too: Android 5.0 (API 21) and newer.
+- No ads, no tracking, no internet permission. Free software under GPLv3.
 
-<b>Usage</b>
-- Tap the floating button to mute or unmute.
-- Drag it to move it.
-- Long press to hide it.
-- The notification allows you to hide and show it at any time.
-- You can also quit the app by tapping on 'exit' in the notification.
-- Tap on the notification to open the app so you can change the settings.
+<b>How to use</b>
+- Tap the button to mute or unmute.
+- Hold briefly, then drag to move it.
+- Drag it to the bottom edge and release to hide it.
+- Long press the button to show or hide the volume percentage.
+- Use the notification to Hide, Show or Stop the button at any time.
+- Tap the notification to open the settings and change the look.
+
+<b>Permissions</b>
+- Display over other apps: needed to draw the button on top of other apps.
+- Notifications: used for the Hide, Show and Stop controls.
+- Modify audio settings: needed to change the media volume.
+- Ignore battery optimisations (optional): keeps the button alive on some phones.
