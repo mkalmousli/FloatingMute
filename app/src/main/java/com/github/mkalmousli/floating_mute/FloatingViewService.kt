@@ -77,8 +77,6 @@ class NotificationBroadcastReceiver : BroadcastReceiver() {
 }
 
 
-private const val s = "Hide"
-
 class FloatingViewService : Service() {
     private val windowManager: WindowManager by lazy {
         getSystemService(WINDOW_SERVICE) as WindowManager
@@ -117,7 +115,8 @@ class FloatingViewService : Service() {
 
 
     private fun convertVolumeToPercentage(volume: Int) =
-        ((volume.toDouble() / maxVolumeFlow) * 100).roundToInt()
+        if (maxVolumeFlow <= 0) 0
+        else ((volume.toDouble() / maxVolumeFlow) * 100).roundToInt()
 
     private val volumePercentageFlow by lazy {
         MutableStateFlow(0).also { flow ->
@@ -489,7 +488,17 @@ class FloatingViewService : Service() {
                 pendingBroadcast(0)
             )
             addAction(R.drawable.transparent, getString(R.string.stop), pendingBroadcast(1))
-            setContentIntent(pendingBroadcast(2))
+            // Open the app directly. Routing through a broadcast receiver is
+            // unreliable on Android 12+ (background activity start limits).
+            setContentIntent(
+                PendingIntent.getActivity(
+                    this@FloatingViewService,
+                    2,
+                    Intent(this@FloatingViewService, MainActivity::class.java)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP),
+                    PendingIntent.FLAG_IMMUTABLE
+                )
+            )
         }.build()
 
 
@@ -506,7 +515,7 @@ class FloatingViewService : Service() {
     override fun onCreate() {
         super.onCreate()
 
-        goForeground(Mode.Enabled)
+        goForeground(if (modeFlow.value == Mode.Hidden) Mode.Hidden else Mode.Enabled)
 
         // Decide the starting mode *before* the collector below starts, so it
         // never briefly sees Disabled and tears the service down on launch.

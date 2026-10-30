@@ -16,8 +16,8 @@ android {
         applicationId = "com.github.mkalmousli.floating_mute"
         minSdk = 21
         targetSdk = 34
-        versionCode = 5
-        versionName = "4.0.1"
+        versionCode = 6
+        versionName = "4.1.0"
 
         defaultConfig {
             // BUILD_TIME is not constant, so here we type it fixed:

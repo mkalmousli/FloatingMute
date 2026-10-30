@@ -63,6 +63,24 @@ There might be other sources where you can get the app, but note that they are N
 - You can also quit the app by tapping on 'Stop' in the notification.
 - Tap on the notification to open the app so you can change the settings and themes.
 
+## Requirements
+- Android 5.0 (API 21) or newer. Older phones are still supported.
+- "Display over other apps" permission (the app asks for it on first launch).
+- Notification permission on Android 13+ (used for the Hide / Show / Stop controls).
+
+## Building from source
+The project builds with Gradle and the Android SDK. The easiest way is GitHub Codespaces:
+
+```bash
+git clone https://github.com/mkalmousli/FloatingMute.git
+cd FloatingMute
+./gradlew assembleDebug
+```
+
+The debug APK is written to `app/build/outputs/apk/debug/`.
+
+`./gradlew assembleRelease` produces an unsigned release APK; sign it with your own key before installing.
+
 ## Screenshots
 
 <table>
